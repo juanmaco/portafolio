@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Juan Manuel Córdoba · Product Designer</title>
+  <meta name="description" content="Portafolio de Juan Manuel Córdoba, Lead Product Designer: UX/UI, Product Design y Ops. Casos de Chamba y Logi Loop; Cinemark, próximamente.">
+  <meta name="theme-color" content="#0C0F1E">
+  <!-- Política de seguridad: solo scripts propios; estilos propios y de Google Fonts (los estilos en línea los usa el juego para posicionar). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; media-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="icon" href="assets/icono.svg" type="image/svg+xml">
+  <link rel="canonical" href="https://juanmaco.github.io/portafolio/">
+  <!-- Vista previa al compartir (LinkedIn, WhatsApp, X…): las URL de Open Graph deben ser absolutas -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PROTOTYPE POCKET">
+  <meta property="og:url" content="https://juanmaco.github.io/portafolio/">
+  <meta property="og:title" content="PROTOTYPE POCKET · Portafolio de Juan Manuel Córdoba">
+  <meta property="og:description" content="Un portafolio jugable en pixel art: enciende la consola y elige entre los casos de Chamba y Logi Loop (Cinemark, próximamente). Product Design, UX/UI y Ops.">
+  <meta property="og:image" content="https://juanmaco.github.io/portafolio/assets/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Portada del portafolio PROTOTYPE POCKET: el cuarto de un diseñador en pixel art con el nombre Juan Manuel Córdoba">
+  <meta property="og:locale" content="es_CO">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body>
+  <!-- Aviso para teléfonos en vertical -->
+  <div id="giro" class="giro" role="dialog" aria-labelledby="giro-titulo">
+    <div class="giro-ilustracion" aria-hidden="true">
+      <div class="giro-tel-v"></div>
+      <div class="giro-tel-h"><span>▸ START</span></div>
+      <div class="giro-flecha">↷</div>
+    </div>
+    <h2 id="giro-titulo" class="pixel">GIRA TU TELÉFONO</h2>
+    <p>PROTOTYPE POCKET se juega en horizontal, como una consola portátil. Así los textos se leen mejor.</p>
+    <button class="enlace" data-accion="clasico">Prefiero el modo clásico ▸</button>
+  </div>
+
+  <!-- La consola -->
+  <main id="consola" class="consola" aria-label="PROTOTYPE POCKET, portafolio jugable">
+    <div class="barra-superior">
+      <button class="mini" id="btn-sonido" aria-pressed="false" title="Sonido">♪ OFF</button>
+      <span class="marca pixel">PROTOTYPE POCKET</span>
+      <button class="mini" id="btn-saltar" title="Saltar la intro e ir a los proyectos">SALTAR ▸</button>
+    </div>
+
+    <div class="cruceta" aria-label="Cruceta">
+      <button class="dir arriba" data-tecla="arriba" aria-label="Arriba">▲</button>
+      <button class="dir izq" data-tecla="izq" aria-label="Izquierda">◀</button>
+      <span class="dir centro" aria-hidden="true"></span>
+      <button class="dir der" data-tecla="der" aria-label="Derecha">▶</button>
+      <button class="dir abajo" data-tecla="abajo" aria-label="Abajo">▼</button>
+    </div>
+
+    <div class="bisel">
+      <div id="marco" class="marco">
+        <div id="escenario" class="escenario" aria-live="polite">
+          <div id="fondo" class="fondo" aria-hidden="true"></div>
+          <div id="ui" class="ui"></div>
+        </div>
+      </div>
+      <div class="bisel-pie"><span class="led" aria-hidden="true"></span><span>POWER</span><span class="modelo">MODEL v1.0 · HI-FI</span></div>
+    </div>
+
+    <div class="botones">
+      <button class="btn btn-a" data-tecla="a" aria-label="Botón A: aceptar">A</button>
+      <button class="btn btn-b" data-tecla="b" aria-label="Botón B: volver">B</button>
+    </div>
+
+    <div class="pildoras">
+      <button class="pildora" data-tecla="select">SELECT</button>
+      <button class="pildora" data-tecla="start">START</button>
+    </div>
+    <p class="ayuda">Teclado: flechas · Enter = A · Retroceso = B · Esc = START</p>
+  </main>
+
+  <!-- Caso de estudio en formato web -->
+  <article id="caso" class="caso" hidden></article>
+
+  <!-- Modo clásico -->
+  <section id="clasico" class="clasico" hidden></section>
+
+  <script src="js/datos.js"></script>
+  <script src="js/sonido.js"></script>
+  <script src="js/juego.js"></script>
+</body>
+</html>

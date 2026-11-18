@@ -319,9 +319,23 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .proy.prox:hover .flecha-ver { transform: none; }
 .proy.prox .flecha-ver { font-size: 16px; }
 
-/* Cambio de idioma ES / EN: el idioma activo va resaltado */
-.grupo-mini { display: flex; align-items: center; gap: 4px; }
-.mini.idioma { color: #8ED1FC99; }
-.mini.idioma .on, .idioma-flotante .on { color: var(--amarillo); }
-.idioma-flotante { position: fixed; right: 16px; bottom: 16px; z-index: 30; font-family: var(--pixel); font-weight: 700; font-size: 15px; color: #FBF7EA99; background: var(--tinta); border: 3px solid var(--papel); border-radius: 8px; padding: 10px 14px; box-shadow: 3px 3px 0 #00000055; }
-.idioma-flotante:hover { border-color: var(--amarillo); }
+
+/* Botones de sonido e idioma: píldoras bien visibles (estado activo en color) */
+.grupo-mini { display: flex; align-items: center; gap: 10px; }
+.pill { display: inline-flex; align-items: center; gap: 8px; font-family: var(--pixel); font-weight: 700; font-size: 14px; letter-spacing: 1px; line-height: 1; color: var(--papel);
+  background: #FFFFFF1A; border: 2px solid #FBF7EA88; border-radius: 999px; padding: 7px 14px; cursor: pointer; transition: background .15s ease, border-color .15s ease; }
+.pill:hover { background: #FFFFFF30; border-color: var(--papel); }
+.pill .ico { font-size: 17px; }
+#btn-sonido b { color: var(--amarillo); }
+#btn-sonido.on { background: var(--turquesa); border-color: var(--papel); color: var(--tinta); }
+#btn-sonido.on b { color: var(--tinta); }
+.pill.idioma { padding: 3px; gap: 2px; }
+.pill.idioma .seg { padding: 5px 10px; border-radius: 999px; color: #FBF7EAAA; }
+.pill.idioma .seg.on { background: var(--amarillo); color: var(--tinta); }
+/* Hasta que el visitante lo use, el botón de sonido late para que se note */
+.llamar { animation: llamar 1.8s ease-out infinite; }
+@keyframes llamar { 0% { box-shadow: 0 0 0 0 #F6C343AA; } 70%, 100% { box-shadow: 0 0 0 12px #F6C34300; } }
+@media (prefers-reduced-motion: reduce) { .llamar { animation: none; border-color: var(--amarillo); } }
+/* En los casos y el modo clásico el idioma flota abajo a la derecha */
+.idioma-flotante { position: fixed; right: 16px; bottom: 16px; z-index: 30; background: var(--tinta); border-color: var(--papel); box-shadow: 3px 3px 0 #00000055; }
+.idioma-flotante:hover { background: var(--tinta); border-color: var(--amarillo); }

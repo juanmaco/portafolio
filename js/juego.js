@@ -319,9 +319,14 @@
   function saltar() { estado.visitoLab = false; laboratorio(true); }
   $("#btn-saltar").addEventListener("click", saltar);
   const btnSonido = $("#btn-sonido");
-  const pintarSonido = on => { btnSonido.setAttribute("aria-pressed", on); btnSonido.textContent = on ? "♪ ON" : "♪ OFF"; };
+  // Botón de sonido tipo píldora: dice SONIDO/SOUND con su estado y, hasta que el visitante lo use una vez, late suavemente
+  const pintarSonido = on => {
+    btnSonido.setAttribute("aria-pressed", on); btnSonido.classList.toggle("on", on);
+    btnSonido.innerHTML = `<span class="ico" aria-hidden="true">♪</span>${D.ui.sonido} <b>${on ? "ON" : "OFF"}</b>`;
+  };
+  if (!leer("sonidoProbado", false)) btnSonido.classList.add("llamar");
   pintarSonido(S.activo);
-  btnSonido.addEventListener("click", () => pintarSonido(S.alternar()));
+  btnSonido.addEventListener("click", () => { btnSonido.classList.remove("llamar"); guardar("sonidoProbado", true); pintarSonido(S.alternar()); });
 
   /* ---------- Caso de estudio ---------- */
   let casoActual = null;
@@ -419,10 +424,10 @@
     $("#giro-titulo").textContent = u.giroTitulo; $("#giro p").textContent = u.giroTexto; $('#giro [data-accion="clasico"]').textContent = u.giroBoton;
     $(".ayuda").textContent = u.ayuda;
     const bs = $("#btn-saltar"); bs.textContent = u.saltar; bs.title = u.saltarTitulo;
-    btnSonido.title = u.sonidoTitulo;
+    btnSonido.title = u.sonidoTitulo; pintarSonido(S.activo);
     $('[data-tecla="a"]').setAttribute("aria-label", u.botonA); $('[data-tecla="b"]').setAttribute("aria-label", u.botonB);
     [btnIdioma, btnIdiomaFlotante].forEach(b => {
-      b.innerHTML = `<span class="${idioma === "es" ? "on" : ""}">ES</span> / <span class="${idioma === "en" ? "on" : ""}">EN</span>`;
+      b.innerHTML = `<span class="seg ${idioma === "es" ? "on" : ""}">ES</span><span class="seg ${idioma === "en" ? "on" : ""}">EN</span>`;
       b.title = u.idiomaTitulo; b.setAttribute("aria-label", u.idiomaTitulo); b.lang = idioma === "es" ? "en" : "es";
     });
     btnIdiomaFlotante.hidden = !consola.hidden;

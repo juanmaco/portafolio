@@ -16,7 +16,7 @@ window.DATOS = {
     cargando: "Cargando prototipo…",
     saltarIntro: "SALTAR INTRO ▸",
     saltar: "SALTAR ▸", saltarTitulo: "Saltar la intro e ir a los proyectos",
-    sonidoTitulo: "Sonido", idiomaTitulo: "Switch to English",
+    sonido: "SONIDO", sonidoTitulo: "Activar o silenciar la música y los efectos", idiomaTitulo: "Switch to English",
     menuInicio: ["NUEVA PARTIDA", "VER PROYECTOS", "MODO CLÁSICO"],
     preguntaNombre: "¿Cómo te llamas?", opcional: "(opcional)",
     teclas: ["BORRAR", "MAYÚS", "LISTO"],

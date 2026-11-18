@@ -14,7 +14,7 @@ window.DATOS_EN = {
     cargando: "Loading prototype…",
     saltarIntro: "SKIP INTRO ▸",
     saltar: "SKIP ▸", saltarTitulo: "Skip the intro and go to the projects",
-    sonidoTitulo: "Sound", idiomaTitulo: "Cambiar a español",
+    sonido: "SOUND", sonidoTitulo: "Turn music and sound effects on or off", idiomaTitulo: "Cambiar a español",
     menuInicio: ["NEW GAME", "VIEW PROJECTS", "CLASSIC MODE"],
     preguntaNombre: "What's your name?", opcional: "(optional)",
     teclas: ["DELETE", "CAPS", "DONE"],

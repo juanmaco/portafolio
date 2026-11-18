@@ -145,7 +145,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .teclado .fila { display: flex; justify-content: space-between; padding: 0 20px; }
 .teclado .tecla { width: 46px; text-align: center; border: 4px solid transparent; border-radius: 4px; cursor: pointer; }
 .teclado .tecla.sel { border-color: var(--coral); }
-.teclado .acciones { display: flex; justify-content: space-between; padding: 14px 28px 0; color: #3F6FB5; font-weight: 700; font-size: 24px; text-shadow: none; }
+.teclado .acciones { display: flex; justify-content: space-between; padding: 8px 28px 0; line-height: 38px; color: #3F6FB5; font-weight: 700; font-size: 24px; text-shadow: none; }
 .teclado .acciones span { border: 4px solid transparent; padding: 0 6px; cursor: pointer; }
 .teclado .acciones span.sel { border-color: var(--coral); }
 .teclado .acciones .listo { color: var(--coral); }

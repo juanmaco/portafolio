@@ -187,7 +187,7 @@
     nombreTemp = ""; fil = 0; col = 0; tecleado = false;
     ui.innerHTML = `<div class="pregunta-nombre">${D.ui.preguntaNombre}</div><div class="campo-nombre">_</div><div class="opcional">${D.ui.opcional}</div>
       <div class="continuar" role="button" data-click="continuar"><b>${D.ui.continuar}</b><small>${D.ui.continuarAyuda}</small></div>
-      <div class="caja teclado"><div class="caja-int" style="font-size:30px;line-height:54px;padding:16px 20px 0">
+      <div class="caja teclado"><div class="caja-int" style="font-size:30px;line-height:42px;padding:20px 20px 0">
       ${filas.slice(0, 3).map((f, i) => `<div class="fila">${f.map((l, j) => `<span class="tecla" data-click="${i},${j}" data-f="${i}" data-c="${j}">${l}</span>`).join("")}</div>`).join("")}
       <div class="acciones">${filas[3].map((l, j) => `<span data-click="3,${j}" data-f="3" data-c="${j}" class="${l === "listo" ? "listo" : ""}">${l === "listo" ? "▸ " : ""}${D.ui.teclas[j]}</span>`).join("")}</div></div></div>`;
     pintarNombre();

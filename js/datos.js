@@ -18,7 +18,7 @@ window.DATOS = {
     saltar: "SALTAR ▸", saltarTitulo: "Saltar la intro e ir a los proyectos",
     sonido: "SONIDO", sonidoTitulo: "Activar o silenciar la música y los efectos", idiomaTitulo: "Switch to English",
     menuInicio: ["NUEVA PARTIDA", "VER PROYECTOS", "MODO CLÁSICO"],
-    preguntaNombre: "¿Cómo te llamas?", opcional: "(opcional)",
+    preguntaNombre: "¿Cómo te llamas?", opcional: "(opcional)", continuar: "CONTINUAR ▸", continuarAyuda: "o pulsa START",
     teclas: ["BORRAR", "MAYÚS", "LISTO"],
     visitante: "VISITANTE",
     visto: "✓ VISTO", proximamente: "PRÓXIMAMENTE",

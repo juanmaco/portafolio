@@ -22,6 +22,7 @@
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Portada del portafolio PROTOTYPE POCKET: el cuarto de un diseñador en pixel art con el nombre Juan Manuel Córdoba">
   <meta property="og:locale" content="es_CO">
+  <meta property="og:locale:alternate" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,7 +45,10 @@
   <!-- La consola -->
   <main id="consola" class="consola" aria-label="PROTOTYPE POCKET, portafolio jugable">
     <div class="barra-superior">
-      <button class="mini" id="btn-sonido" aria-pressed="false" title="Sonido">♪ OFF</button>
+      <div class="grupo-mini">
+        <button class="mini" id="btn-sonido" aria-pressed="false" title="Sonido">♪ OFF</button>
+        <button class="mini idioma" id="btn-idioma" title="Switch to English">ES / EN</button>
+      </div>
       <span class="marca pixel">PROTOTYPE POCKET</span>
       <button class="mini" id="btn-saltar" title="Saltar la intro e ir a los proyectos">SALTAR ▸</button>
     </div>
@@ -85,7 +89,11 @@
   <!-- Modo clásico -->
   <section id="clasico" class="clasico" hidden></section>
 
+  <!-- Cambio de idioma en el caso de estudio y el modo clásico (en la consola está en la barra superior) -->
+  <button class="idioma-flotante" id="idioma-flotante" hidden>ES / EN</button>
+
   <script src="js/datos.js"></script>
+  <script src="js/datos_en.js"></script>
   <script src="js/sonido.js"></script>
   <script src="js/juego.js"></script>
 </body>

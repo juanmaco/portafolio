@@ -318,3 +318,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .proy.prox:hover .ver { background: none; }
 .proy.prox:hover .flecha-ver { transform: none; }
 .proy.prox .flecha-ver { font-size: 16px; }
+
+/* Cambio de idioma ES / EN: el idioma activo va resaltado */
+.grupo-mini { display: flex; align-items: center; gap: 4px; }
+.mini.idioma { color: #8ED1FC99; }
+.mini.idioma .on, .idioma-flotante .on { color: var(--amarillo); }
+.idioma-flotante { position: fixed; right: 16px; bottom: 16px; z-index: 30; font-family: var(--pixel); font-weight: 700; font-size: 15px; color: #FBF7EA99; background: var(--tinta); border: 3px solid var(--papel); border-radius: 8px; padding: 10px 14px; box-shadow: 3px 3px 0 #00000055; }
+.idioma-flotante:hover { border-color: var(--amarillo); }

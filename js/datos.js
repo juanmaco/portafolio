@@ -6,7 +6,40 @@ window.DATOS = {
     behance: "https://www.behance.net/juanmaco18",
     // El correo se arma en el navegador para que los bots no lo lean del código fuente.
     correo: ["juanmaco-97", "hotmail.com"],
-    cv: "assets/cv/CV_Juan_Manuel_Cordoba.pdf" // versión web: sin dirección ni teléfonos de referencias
+    cv: "assets/cv/CV_Juan_Manuel_Cordoba.pdf", // versión web: sin dirección ni teléfonos de referencias
+    cvArchivo: "CV_Juan_Manuel_Cordoba.pdf"
+  },
+
+  // Textos de la interfaz (menús, botones, avisos). La versión en inglés está en datos_en.js.
+  ui: {
+    titulo: "Juan Manuel Córdoba · Product Designer",
+    cargando: "Cargando prototipo…",
+    saltarIntro: "SALTAR INTRO ▸",
+    saltar: "SALTAR ▸", saltarTitulo: "Saltar la intro e ir a los proyectos",
+    sonidoTitulo: "Sonido", idiomaTitulo: "Switch to English",
+    menuInicio: ["NUEVA PARTIDA", "VER PROYECTOS", "MODO CLÁSICO"],
+    preguntaNombre: "¿Cómo te llamas?", opcional: "(opcional)",
+    teclas: ["BORRAR", "MAYÚS", "LISTO"],
+    visitante: "VISITANTE",
+    visto: "✓ VISTO", proximamente: "PRÓXIMAMENTE",
+    fichaProx: "▸ CASO EN PREPARACIÓN · PRÓXIMAMENTE",
+    si: "SÍ", no: "NO",
+    tomateTiempo: "Tómate tu tiempo, {nombre}.",
+    pistaFinalizar: "Cuando quieras, pulsa START\ny elige FINALIZAR.",
+    cierreMenu: { cv: "DESCARGAR CV", linkedin: "LINKEDIN", email: "EMAIL", behance: "BEHANCE", volver: "VOLVER AL LAB" },
+    start: { finalizar: "FINALIZAR", proyectos: "PROYECTOS", sobreMi: "SOBRE MÍ", contacto: "CONTACTO", clasico: "MODO CLÁSICO", cerrar: "CERRAR" },
+    volverLab: "VOLVER AL LABORATORIO", volverProy: "VOLVER A PROYECTOS",
+    capsula: "CÁPSULA", siguiente: "SIGUIENTE", siguienteCapsula: "SIGUIENTE CÁPSULA", finalizar: "FINALIZAR",
+    vistoTodo: "¡Viste todos los proyectos!", seguimos: "¿Seguimos explorando?",
+    descargarCV: "Descargar CV",
+    clasicoIntro: "<b>Lead Product Designer · UX/UI · Product Design · Ops.</b> Profesional en Diseño de Medios Interactivos con más de 6 años de experiencia en UX/UI, Product Discovery, sistemas de diseño y prototipado. Hoy lidero el rediseño de la app de Cinemark para Latinoamérica en SunDevs.",
+    jugar: "▸ Jugar la versión PROTOTYPE POCKET",
+    verCaso: "Ver caso", avisoProx: "El caso de estudio llega cuando se lance la nueva app.", proxPie: "Próximamente",
+    giroTitulo: "GIRA TU TELÉFONO",
+    giroTexto: "PROTOTYPE POCKET se juega en horizontal, como una consola portátil. Así los textos se leen mejor.",
+    giroBoton: "Prefiero el modo clásico ▸",
+    ayuda: "Teclado: flechas · Enter = A · Retroceso = B · Esc = START",
+    botonA: "Botón A: aceptar", botonB: "Botón B: volver"
   },
 
   intro: [

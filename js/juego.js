@@ -1,6 +1,8 @@
 /* PROTOTYPE POCKET · motor del juego (sin dependencias) */
 (() => {
-  const D = window.DATOS;
+  // Idiomas: español (datos.js) e inglés (datos_en.js). D apunta siempre al idioma activo.
+  const IDIOMAS = { es: window.DATOS, en: window.DATOS_EN || window.DATOS };
+  let idioma = "es", D = IDIOMAS.es;
   const $ = (s, el = document) => el.querySelector(s);
   const marco = $("#marco"), escenario = $("#escenario"), fondo = $("#fondo"), ui = $("#ui");
   const consola = $("#consola"), vistaCaso = $("#caso"), vistaClasico = $("#clasico");
@@ -11,8 +13,19 @@
   try { localStorage.removeItem("pp-vistos"); } catch (e) {}
   const leer = (k, def) => { try { const v = almacen(k).getItem("pp-" + k); return v ? JSON.parse(v) : def; } catch (e) { return def; } };
 
-  const estado = { nombre: leer("nombre", "VISITANTE"), destaca: 1, sel: 1, vistos: leer("vistos", []), visitoLab: false };
-  const conNombre = t => t.replace(/\{nombre\}/g, estado.nombre);
+  // Idioma inicial: ?lang=en|es en la URL, si no el que eligió antes, si no el del navegador (español → ES, otro → EN)
+  {
+    const param = new URLSearchParams(location.search).get("lang");
+    const guardado = leer("idioma", null);
+    idioma = IDIOMAS[param] ? param : IDIOMAS[guardado] ? guardado : ((navigator.language || "es").toLowerCase().startsWith("es") ? "es" : "en");
+    D = IDIOMAS[idioma];
+  }
+
+  // Sin nombre se muestra «VISITANTE» o «VISITOR» según el idioma
+  let nombreGuardado = leer("nombre", "");
+  if (nombreGuardado === "VISITANTE" || nombreGuardado === "VISITOR") nombreGuardado = "";
+  const estado = { nombre: nombreGuardado, destaca: 1, sel: 1, vistos: leer("vistos", []), visitoLab: false };
+  const conNombre = t => t.replace(/\{nombre\}/g, estado.nombre || D.ui.visitante);
   const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
   /* ---------- Escala de la pantalla 720×480 ---------- */
@@ -21,8 +34,10 @@
 
   /* ---------- Fondos SVG (en línea para que usen la fuente de la página) ---------- */
   const cache = {};
+  const FONDOS_EN = ["lab", "medallas"];
   async function ponerFondo(nombre) {
     if (!nombre) { fondo.innerHTML = ""; return; }
+    if (idioma === "en" && FONDOS_EN.includes(nombre)) nombre += "_en"; // fondos con texto dibujado tienen versión en inglés
     try { fondo.innerHTML = await cargarFondo(nombre); }
     catch (e) { delete cache[nombre]; fondo.innerHTML = ""; } // sin conexión: la escena sigue sin fondo y se reintenta la próxima vez
   }
@@ -122,14 +137,14 @@
   const MUSICA = { titulo: "cuarto", menu: "cuarto", cierre: "cuarto", intro: "profesor", nombre: "profesor", eleccion: "profesor", medallas: "profesor", lab: "lab" };
   async function escena(nombre, fondoSvg) {
     escenaActual = nombre; manejador = null; clearInterval(escribiendo); escribiendo = null;
-    S.pista(MUSICA[nombre] || null);
+    S.pista(MUSICA[nombre] || null); pintarIdioma();
     ui.innerHTML = ""; await ponerFondo(fondoSvg);
   }
 
   async function encendido() {
     await escena("encendido", null);
     ui.innerHTML = `<div class="encendido"><div><div class="wire"><div class="logo texto-contorno">PROTOTYPE POCKET</div><div class="modelo">MODEL v1.0 · HI-FI</div></div></div>
-      <div class="carga">Cargando prototipo…</div><div class="barra">${"<i></i>".repeat(10)}</div></div>`;
+      <div class="carga">${D.ui.cargando}</div><div class="barra">${"<i></i>".repeat(10)}</div></div>`;
     const barras = ui.querySelectorAll(".barra i"); let k = 0;
     S.sfx("encender");
     const t = setInterval(() => { if (barras[k]) barras[k].classList.add("on"); k += 1; if (k > 10 || escenaActual !== "encendido") { clearInterval(t); if (escenaActual === "encendido") titulo(); } }, 170);
@@ -139,7 +154,7 @@
   async function titulo() {
     await escena("titulo", "titulo");
     ui.innerHTML = `<div class="press texto-contorno parpadeo">▸ PRESS START ◂</div>
-      <div class="pie-titulo"><span>© 2026 JMC</span><span data-click="saltar">SALTAR INTRO ▸</span></div>`;
+      <div class="pie-titulo"><span>© 2026 JMC</span><span data-click="saltar">${D.ui.saltarIntro}</span></div>`;
     manejador = t => {
       if (t && t.click === "saltar") return saltar();
       if (t === "a" || t === "start") menuInicio();
@@ -149,7 +164,7 @@
   async function menuInicio() {
     await escena("menu", "cuarto");
     ui.innerHTML = `<div class="oscurecer"></div><div class="press texto-contorno" style="top:60px;font-size:48px;line-height:54px">JUAN MANUEL<br>CÓRDOBA</div>`;
-    menu({ x: 198, y: 222, w: 324, h: 186, opciones: ["NUEVA PARTIDA", "VER PROYECTOS", "MODO CLÁSICO"], alVolver: titulo,
+    menu({ x: 198, y: 222, w: 324, h: 186, opciones: D.ui.menuInicio, alVolver: titulo,
       alElegir: k => [intro, () => laboratorio(true), modoClasico][k]() });
   }
 
@@ -159,7 +174,8 @@
   }
 
   /* Teclado del nombre */
-  const filas = [["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"], ["K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S"], ["T", "U", "V", "W", "X", "Y", "Z", ".", "-", "?"], ["BORRAR", "MAYÚS", "LISTO"]];
+  // La última fila son las acciones (borrar, mayúsculas, listo); sus textos dependen del idioma
+  const filas = [["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"], ["K", "L", "M", "N", "Ñ", "O", "P", "Q", "R", "S"], ["T", "U", "V", "W", "X", "Y", "Z", ".", "-", "?"], ["borrar", "mayus", "listo"]];
   let nombreTemp = "", fil = 0, col = 0, tecleado = false;
   function escribirLetra(l) { if (nombreTemp.length < 12) { nombreTemp += l; pintarNombre(); S.sfx("tecla"); } }
   function pintarNombre() {
@@ -169,10 +185,10 @@
   async function nombreVisitante() {
     await escena("nombre", "nombre");
     nombreTemp = ""; fil = 0; col = 0; tecleado = false;
-    ui.innerHTML = `<div class="pregunta-nombre">¿Cómo te llamas?</div><div class="campo-nombre">_</div><div class="opcional">(opcional)</div>
+    ui.innerHTML = `<div class="pregunta-nombre">${D.ui.preguntaNombre}</div><div class="campo-nombre">_</div><div class="opcional">${D.ui.opcional}</div>
       <div class="caja teclado"><div class="caja-int" style="font-size:30px;line-height:54px;padding:16px 20px 0">
       ${filas.slice(0, 3).map((f, i) => `<div class="fila">${f.map((l, j) => `<span class="tecla" data-click="${i},${j}" data-f="${i}" data-c="${j}">${l}</span>`).join("")}</div>`).join("")}
-      <div class="acciones">${filas[3].map((l, j) => `<span data-click="3,${j}" data-f="3" data-c="${j}" class="${l === "LISTO" ? "listo" : ""}">${l === "LISTO" ? "▸ " : ""}${l}</span>`).join("")}</div></div></div>`;
+      <div class="acciones">${filas[3].map((l, j) => `<span data-click="3,${j}" data-f="3" data-c="${j}" class="${l === "listo" ? "listo" : ""}">${l === "listo" ? "▸ " : ""}${D.ui.teclas[j]}</span>`).join("")}</div></div></div>`;
     pintarNombre();
     manejador = t => {
       if (t && t.click) { [fil, col] = t.click.split(",").map(Number); pintarNombre(); return pulsarTecla(); }
@@ -188,12 +204,12 @@
   }
   function pulsarTecla() {
     const l = filas[fil][col];
-    if (l === "BORRAR") nombreTemp = nombreTemp.slice(0, -1);
-    else if (l === "LISTO") return terminarNombre();
-    else if (l !== "MAYÚS") escribirLetra(l);
+    if (l === "borrar") nombreTemp = nombreTemp.slice(0, -1);
+    else if (l === "listo") return terminarNombre();
+    else if (l !== "mayus") escribirLetra(l);
     pintarNombre();
   }
-  function terminarNombre() { estado.nombre = nombreTemp.trim() || "VISITANTE"; guardar("nombre", estado.nombre); eleccion(); }
+  function terminarNombre() { estado.nombre = nombreTemp.trim(); guardar("nombre", estado.nombre); eleccion(); }
 
   async function eleccion() {
     await escena("eleccion", "profesor_izq");
@@ -224,8 +240,8 @@
     const vistos = estado.vistos.filter(id => disponibles().some(p => p.id === id));
     ui.innerHTML = `<img class="cursor-lab" src="assets/fondos/cursor.svg" alt="">
       ${centros.map((c, k) => `<div class="zona-capsula" data-click="cap${k}" style="left:${c - 48}px" title="${D.proyectos[k].nombre}"></div>`).join("")}
-      ${vistos.map(id => { const k = D.proyectos.findIndex(p => p.id === id); return k < 0 ? "" : `<div class="visto" style="left:${centros[k]}px">✓ VISTO</div>`; }).join("")}
-      ${D.proyectos.map((p, k) => p.proximamente ? `<div class="visto prox" style="left:${centros[k]}px">PRÓXIMAMENTE</div>` : "").join("")}`;
+      ${vistos.map(id => { const k = D.proyectos.findIndex(p => p.id === id); return k < 0 ? "" : `<div class="visto" style="left:${centros[k]}px">${D.ui.visto}</div>`; }).join("")}
+      ${D.proyectos.map((p, k) => p.proximamente ? `<div class="visto prox" style="left:${centros[k]}px">${D.ui.proximamente}</div>` : "").join("")}`;
     const mover = () => { fondo.querySelectorAll(".capsula, .sombra-cap").forEach(g => g.classList.toggle("sel", +g.dataset.i === estado.sel)); const cur = $(".cursor-lab", ui); cur.style.left = centros[estado.sel] - 13 + "px"; cur.style.animation = "none"; void cur.offsetWidth; cur.style.animation = ""; };
     mover();
     const libre = () => {
@@ -242,7 +258,7 @@
       estado.avisados = vistos.length;
       // Con todos los disponibles vistos el laboratorio sigue libre: el recorrido termina con FINALIZAR (en el caso o en START)
       const faltan = disponibles().length - vistos.length;
-      decir(faltan <= 0 ? [D.labVistos[2], "Cuando quieras, pulsa START\ny elige FINALIZAR."] : D.labVistos[faltan >= 2 ? 0 : 1], libre);
+      decir(faltan <= 0 ? [D.labVistos[2], D.ui.pistaFinalizar] : D.labVistos[faltan >= 2 ? 0 : 1], libre);
     }
     else libre();
   }
@@ -253,14 +269,14 @@
     capa.innerHTML = `<div class="oscurecer"></div><div class="ficha"><div class="ficha-int">
       <div class="ficha-cab" style="background:${p.color}"><h3>${p.nombre}</h3><span class="chip" style="background:${p.chip}">${p.tipo}</span></div>
       <div class="ficha-rol">${p.rol}</div><p class="ficha-desc">${p.desc}</p>
-      ${p.proximamente ? `<div class="ficha-prox" style="--c:${p.color}">▸ CASO EN PREPARACIÓN · PRÓXIMAMENTE</div>`
+      ${p.proximamente ? `<div class="ficha-prox" style="--c:${p.color}">${D.ui.fichaProx}</div>`
         : `<div class="ficha-stats" style="--c:${p.color}">${p.stats.map(s => `<span>${s}</span>`).join("")}</div>`}</div></div>`;
     ui.appendChild(capa); S.sfx("capsula");
     if (p.proximamente) return decir(p.aviso, () => { capa.remove(); laboratorio(); });
     // La pregunta se queda visible mientras se elige SÍ o NO
     const preguntar = () => decir(p.pregunta, pregunta => {
-      menu({ x: 564, y: 179, w: 138, fuente: 25, alto: 36, opciones: ["SÍ", "NO"], alVolver: () => { pregunta.remove(); capa.remove(); laboratorio(); },
-        alElegir: s => { pregunta.remove(); if (s === 0) abrirCaso(p.id); else { capa.remove(); decir("Tómate tu tiempo, {nombre}.", () => laboratorio()); } } });
+      menu({ x: 564, y: 179, w: 138, fuente: 25, alto: 36, opciones: [D.ui.si, D.ui.no], alVolver: () => { pregunta.remove(); capa.remove(); laboratorio(); },
+        alElegir: s => { pregunta.remove(); if (s === 0) abrirCaso(p.id); else { capa.remove(); decir(D.ui.tomateTiempo, () => laboratorio()); } } });
     }, { mantener: true });
     if (p.nota) decir(p.nota, preguntar); else preguntar();
   }
@@ -269,16 +285,15 @@
     await escena("cierre", "cuarto");
     estado.cierreVisto = true;
     ui.innerHTML = `<div class="oscurecer"></div>`;
-    const c = D.contacto, correo = c.correo.join("@");
-    const opciones = ["LINKEDIN", "EMAIL", "BEHANCE", "VOLVER AL LAB"]; if (c.cv) opciones.unshift("DESCARGAR CV");
+    const c = D.contacto, correo = c.correo.join("@"), m = D.ui.cierreMenu;
+    const acciones = [["linkedin", () => window.open(c.linkedin, "_blank", "noopener")], ["email", () => { location.href = "mailto:" + correo; }],
+      ["behance", () => window.open(c.behance, "_blank", "noopener")], ["volver", null]];
+    if (c.cv) acciones.unshift(["cv", descargarCV]);
+    const opciones = acciones.map(a => m[a[0]]);
     const abrir = k => {
-      const o = opciones[k];
-      if (o === "LINKEDIN") window.open(c.linkedin, "_blank", "noopener");
-      if (o === "BEHANCE") window.open(c.behance, "_blank", "noopener");
-      if (o === "EMAIL") location.href = "mailto:" + correo;
-      if (o === "DESCARGAR CV") descargarCV();
-      if (o === "VOLVER AL LAB") return laboratorio();
-      mostrarMenu();
+      const [clave, accion] = acciones[k];
+      if (clave === "volver") return laboratorio();
+      accion(); mostrarMenu();
     };
     const mostrarMenu = () => menu({ x: 198, y: 18, w: 324, h: 60 + opciones.length * 48, alto: 48, opciones, alElegir: abrir, alVolver: () => laboratorio() });
     decir(felicitar ? [D.labVistos[2], D.cierre] : D.cierre, mostrarMenu);
@@ -287,8 +302,9 @@
   function menuStart() {
     const capa = document.createElement("div"); capa.className = "oscurecer"; ui.appendChild(capa);
     const previo = manejador;
-    const items = [["PROYECTOS", () => laboratorio()], ["SOBRE MÍ", () => medallas(true)], ["CONTACTO", () => cierre()], ["MODO CLÁSICO", modoClasico], ["CERRAR", () => { manejador = previo; }]];
-    if (todosVistos()) items.unshift(["FINALIZAR", () => cierre(true)]);
+    const st = D.ui.start;
+    const items = [[st.proyectos, () => laboratorio()], [st.sobreMi, () => medallas(true)], [st.contacto, () => cierre()], [st.clasico, modoClasico], [st.cerrar, () => { manejador = previo; }]];
+    if (todosVistos()) items.unshift([st.finalizar, () => cierre(true)]);
     menu({ x: 198, y: todosVistos() ? 50 : 70, w: 324, alto: 50, opciones: items.map(o => o[0]),
       alVolver: () => { capa.remove(); manejador = previo; },
       alElegir: k => { capa.remove(); items[k][1](); } });
@@ -297,7 +313,7 @@
   const disponibles = () => D.proyectos.filter(x => !x.proximamente && D.casos[x.id]);
   const todosVistos = () => disponibles().every(x => estado.vistos.includes(x.id));
   function descargarCV() {
-    const a = document.createElement("a"); a.href = D.contacto.cv; a.download = "CV_Juan_Manuel_Cordoba.pdf";
+    const a = document.createElement("a"); a.href = D.contacto.cv; a.download = D.contacto.cvArchivo;
     document.body.appendChild(a); a.click(); a.remove();
   }
   function saltar() { estado.visitoLab = false; laboratorio(true); }
@@ -308,14 +324,17 @@
   btnSonido.addEventListener("click", () => pintarSonido(S.alternar()));
 
   /* ---------- Caso de estudio ---------- */
-  function abrirCaso(id) {
+  let casoActual = null;
+  function abrirCaso(id, redibujar = false) {
     if (!D.casos[id]) return; // proyecto «Próximamente»: no tiene caso publicado
-    S.sfx("abrir"); S.pista(null);
+    casoActual = id;
+    if (!redibujar) { S.sfx("abrir"); S.pista(null); }
+    const u = D.ui;
     if (!estado.vistos.includes(id)) { estado.vistos.push(id); guardar("vistos", estado.vistos); }
     const c = D.casos[id], p = D.proyectos.find(x => x.id === id);
     const lista = disponibles(), sig = lista[(lista.findIndex(x => x.id === id) + 1) % lista.length];
     const clasico = document.body.classList.contains("modo-clasico");
-    const volverTxt = clasico ? "VOLVER A PROYECTOS" : "VOLVER AL LABORATORIO";
+    const volverTxt = clasico ? u.volverProy : u.volverLab;
     const fin = todosVistos() && !clasico; // FINALIZAR solo aparece con los 3 proyectos vistos
     const img = (src, alt = "") => `<img src="assets/casos/${src}" alt="${esc(alt)}" loading="lazy">`;
     const sec = s => {
@@ -334,14 +353,14 @@
     };
     vistaCaso.style.setProperty("--acento", p.color); vistaCaso.style.setProperty("--oscuro", p.oscuro);
     vistaCaso.innerHTML = `
-      <nav class="caso-nav"><button data-accion="lab">◂ ${volverTxt}</button><span class="num">CÁPSULA ${lista.indexOf(p) + 1} / ${lista.length} · ${p.nombre}</span>${fin ? `<button class="sig fin" data-accion="fin">FINALIZAR ▸</button>` : `<button class="sig" data-accion="sig">SIGUIENTE: ${sig.nombre} ▸</button>`}</nav>
+      <nav class="caso-nav"><button data-accion="lab">◂ ${volverTxt}</button><span class="num">${u.capsula} ${lista.indexOf(p) + 1} / ${lista.length} · ${p.nombre}</span>${fin ? `<button class="sig fin" data-accion="fin">${u.finalizar} ▸</button>` : `<button class="sig" data-accion="sig">${u.siguiente}: ${sig.nombre} ▸</button>`}</nav>
       <header class="caso-hero" style="background:${p.oscuro}"><div><span class="caso-etq" style="background:${p.color}">${c.etiqueta}</span><h1>${c.titulo}</h1>
         <p class="caso-sub" style="color:${p.chip}">${esc(c.subtitulo)}</p><p class="res">${esc(c.resumen)}</p>
         <div class="caso-meta">${c.meta.map(m => `<div><small>${m[0]}</small><b>${esc(m[1])}</b></div>`).join("")}</div></div>${img(c.portada, c.titulo)}</header>
       <div class="caso-stats" style="background:${p.color}">${c.stats.map(s => `<div><strong>${esc(s[0])}</strong><span>${esc(s[1])}</span></div>`).join("")}</div>
       ${c.secciones.map(sec).join("")}
-      <footer class="caso-fin"><h2>${fin ? "¡Viste todos los proyectos!" : "¿Seguimos explorando?"}</h2><button class="bot" data-accion="lab">◂ ${volverTxt}</button><button class="bot sig" style="background:${sig.color}" data-accion="sig">SIGUIENTE CÁPSULA: ${sig.nombre} ▸</button>${fin ? `<button class="bot fin" data-accion="fin">FINALIZAR ▸</button>` : ""}
-        <nav>${D.contacto.cv ? `<a href="${D.contacto.cv}" download>Descargar CV</a>` : ""}<a href="${D.contacto.linkedin}" target="_blank" rel="noopener">LinkedIn</a><a href="${D.contacto.behance}" target="_blank" rel="noopener">Behance</a><a href="#" data-accion="correo">Email</a></nav></footer>`;
+      <footer class="caso-fin"><h2>${fin ? u.vistoTodo : u.seguimos}</h2><button class="bot" data-accion="lab">◂ ${volverTxt}</button><button class="bot sig" style="background:${sig.color}" data-accion="sig">${u.siguienteCapsula}: ${sig.nombre} ▸</button>${fin ? `<button class="bot fin" data-accion="fin">${u.finalizar} ▸</button>` : ""}
+        <nav>${D.contacto.cv ? `<a href="${D.contacto.cv}" download="${D.contacto.cvArchivo}">${u.descargarCV}</a>` : ""}<a href="${D.contacto.linkedin}" target="_blank" rel="noopener">LinkedIn</a><a href="${D.contacto.behance}" target="_blank" rel="noopener">Behance</a><a href="#" data-accion="correo">Email</a></nav></footer>`;
     vistaCaso.querySelectorAll("[data-accion]").forEach(b => b.addEventListener("click", e => {
       e.preventDefault(); const a = b.dataset.accion;
       if (a === "lab") { if (document.body.classList.contains("modo-clasico")) modoClasico(); else volverAlJuego(); }
@@ -349,46 +368,77 @@
       if (a === "fin") finalizar();
       if (a === "correo") location.href = "mailto:" + D.contacto.correo.join("@");
     }));
-    consola.hidden = true; vistaClasico.hidden = true; vistaCaso.hidden = false; window.scrollTo(0, 0);
-    document.title = `${c.titulo} · Juan Manuel Córdoba`;
+    consola.hidden = true; vistaClasico.hidden = true; vistaCaso.hidden = false; if (!redibujar) window.scrollTo(0, 0);
+    document.title = `${c.titulo} · Juan Manuel Córdoba`; pintarIdioma();
   }
   function finalizar() {
     vistaCaso.hidden = true; vistaClasico.hidden = true; consola.hidden = false;
-    document.title = "Juan Manuel Córdoba · Product Designer"; ajustar(); cierre(true);
+    document.title = D.ui.titulo; ajustar(); cierre(true);
   }
   // Desde el modo clásico, «Jugar» enciende la consola y arranca la experiencia completa (portada, intro, nombre…)
   function jugarDesdeInicio() {
     vistaCaso.hidden = true; vistaClasico.hidden = true; consola.hidden = false; document.body.classList.remove("modo-clasico");
-    document.title = "Juan Manuel Córdoba · Product Designer"; window.scrollTo(0, 0); ajustar();
+    document.title = D.ui.titulo; window.scrollTo(0, 0); ajustar();
     estado.visitoLab = false; estado.avisados = 0; estado.cierreVisto = false;
     encendido();
   }
   function volverAlJuego() {
     vistaCaso.hidden = true; vistaClasico.hidden = true; consola.hidden = false; document.body.classList.remove("modo-clasico");
-    document.title = "Juan Manuel Córdoba · Product Designer"; ajustar(); laboratorio();
+    document.title = D.ui.titulo; ajustar(); laboratorio();
   }
 
   /* ---------- Modo clásico ---------- */
-  function modoClasico() {
+  function modoClasico(redibujar = false) {
     document.body.classList.add("modo-clasico"); S.pista(null);
-    document.title = "Juan Manuel Córdoba · Product Designer";
-    const c = D.contacto;
-    vistaClasico.innerHTML = `<header><h1>Juan Manuel Córdoba</h1><p><b>Lead Product Designer · UX/UI · Product Design · Ops.</b> Profesional en Diseño de Medios Interactivos con más de 6 años de experiencia en UX/UI, Product Discovery, sistemas de diseño y prototipado. Hoy lidero el rediseño de la app de Cinemark para Latinoamérica en SunDevs.</p>
-      <button class="volver" data-accion="juego">▸ Jugar la versión PROTOTYPE POCKET</button></header>
+    document.title = D.ui.titulo;
+    const c = D.contacto, u = D.ui;
+    vistaClasico.innerHTML = `<header><h1>Juan Manuel Córdoba</h1><p>${u.clasicoIntro}</p>
+      <button class="volver" data-accion="juego">${u.jugar}</button></header>
       <main>${D.proyectos.slice().sort((a, b) => !!a.proximamente - !!b.proximamente).map(p => p.proximamente
         ? `<div class="proy prox" aria-disabled="true">
-        <div class="cab" style="background:${p.color}">${p.nombre}<small>${p.tipo}</small></div><p>${esc(p.desc)}</p><p class="aviso">El caso de estudio llega cuando se lance la nueva app.</p>
-        <span class="ver" style="--c:${p.color}">Próximamente <span class="flecha-ver" aria-hidden="true">⏳</span></span></div>`
+        <div class="cab" style="background:${p.color}">${p.nombre}<small>${p.tipo}</small></div><p>${esc(p.desc)}</p><p class="aviso">${u.avisoProx}</p>
+        <span class="ver" style="--c:${p.color}">${u.proxPie} <span class="flecha-ver" aria-hidden="true">⏳</span></span></div>`
         : `<button class="proy" data-caso="${p.id}">
         <div class="cab" style="background:${p.color}">${p.nombre}<small>${p.tipo}</small></div><p>${esc(p.desc)}</p><ul>${p.stats.map(s => `<li>${esc(s)}</li>`).join("")}</ul>
-        <span class="ver" style="--c:${p.color}">Ver caso <span class="flecha-ver" aria-hidden="true">▸</span></span></button>`).join("")}</main>
-      <footer>${c.cv ? `<a href="${c.cv}" download>Descargar CV</a>` : ""}<a href="${c.linkedin}" target="_blank" rel="noopener">LinkedIn</a><a href="${c.behance}" target="_blank" rel="noopener">Behance</a><a href="#" data-accion="correo">Email</a></footer>`;
+        <span class="ver" style="--c:${p.color}">${u.verCaso} <span class="flecha-ver" aria-hidden="true">▸</span></span></button>`).join("")}</main>
+      <footer>${c.cv ? `<a href="${c.cv}" download="${c.cvArchivo}">${u.descargarCV}</a>` : ""}<a href="${c.linkedin}" target="_blank" rel="noopener">LinkedIn</a><a href="${c.behance}" target="_blank" rel="noopener">Behance</a><a href="#" data-accion="correo">Email</a></footer>`;
     vistaClasico.querySelectorAll("[data-caso]").forEach(b => b.addEventListener("click", () => abrirCaso(b.dataset.caso)));
     vistaClasico.querySelector('[data-accion="juego"]').addEventListener("click", jugarDesdeInicio);
     vistaClasico.querySelector('[data-accion="correo"]').addEventListener("click", e => { e.preventDefault(); location.href = "mailto:" + c.correo.join("@"); });
-    consola.hidden = true; vistaCaso.hidden = true; vistaClasico.hidden = false; window.scrollTo(0, 0);
+    consola.hidden = true; vistaCaso.hidden = true; vistaClasico.hidden = false; if (!redibujar) window.scrollTo(0, 0);
+    pintarIdioma();
   }
-  document.querySelector('#giro [data-accion="clasico"]').addEventListener("click", modoClasico);
+  document.querySelector('#giro [data-accion="clasico"]').addEventListener("click", () => modoClasico());
+
+  /* ---------- Idioma: ES / EN ---------- */
+  const btnIdioma = $("#btn-idioma"), btnIdiomaFlotante = $("#idioma-flotante");
+  // Textos fijos del HTML (aviso de girar, ayuda, botones de la consola) y estado de los botones ES/EN
+  function pintarIdioma() {
+    const u = D.ui;
+    document.documentElement.lang = idioma;
+    $("#giro-titulo").textContent = u.giroTitulo; $("#giro p").textContent = u.giroTexto; $('#giro [data-accion="clasico"]').textContent = u.giroBoton;
+    $(".ayuda").textContent = u.ayuda;
+    const bs = $("#btn-saltar"); bs.textContent = u.saltar; bs.title = u.saltarTitulo;
+    btnSonido.title = u.sonidoTitulo;
+    $('[data-tecla="a"]').setAttribute("aria-label", u.botonA); $('[data-tecla="b"]').setAttribute("aria-label", u.botonB);
+    [btnIdioma, btnIdiomaFlotante].forEach(b => {
+      b.innerHTML = `<span class="${idioma === "es" ? "on" : ""}">ES</span> / <span class="${idioma === "en" ? "on" : ""}">EN</span>`;
+      b.title = u.idiomaTitulo; b.setAttribute("aria-label", u.idiomaTitulo); b.lang = idioma === "es" ? "en" : "es";
+    });
+    btnIdiomaFlotante.hidden = !consola.hidden;
+  }
+  // Al cambiar de idioma se vuelve a dibujar lo que está en pantalla, sin perder el avance
+  const ESCENAS = { encendido: () => titulo(), titulo: () => titulo(), menu: () => menuInicio(), intro: () => intro(), nombre: () => nombreVisitante(),
+    eleccion: () => eleccion(), medallas: () => medallas(true), lab: () => laboratorio(), cierre: () => cierre() };
+  function cambiarIdioma() {
+    idioma = idioma === "es" ? "en" : "es"; D = IDIOMAS[idioma]; guardar("idioma", idioma);
+    pintarIdioma();
+    if (!vistaCaso.hidden && casoActual) abrirCaso(casoActual, true);
+    else if (!vistaClasico.hidden) modoClasico(true);
+    else { document.title = D.ui.titulo; (ESCENAS[escenaActual] || titulo)(); }
+  }
+  [btnIdioma, btnIdiomaFlotante].forEach(b => b.addEventListener("click", cambiarIdioma));
+  pintarIdioma();
 
   encendido();
 })();

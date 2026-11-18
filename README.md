@@ -9,5 +9,6 @@ Portafolio de Lead Product Designer (UX/UI, Product Design y Ops) convertido en 
 - Sitio estático, sin dependencias: HTML, CSS y JavaScript.
 - Arte pixel original (generado como SVG) y música chiptune hecha con Web Audio.
 - Versión horizontal tipo emulador en el móvil y un **modo clásico** para leer los casos sin jugar.
+- En español e inglés (botón ES / EN; abre según el idioma del navegador o con `?lang=en`), con CV descargable en cada idioma.
 
 Para verlo en local: `powershell -ExecutionPolicy Bypass -File servidor.ps1` y abrir http://localhost:8080

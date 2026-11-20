@@ -12,8 +12,14 @@ window.DATOS_EN = {
   ui: {
     titulo: "Juan Manuel Córdoba · Product Designer",
     cargando: "Loading prototype…",
-    saltarIntro: "SKIP INTRO ▸",
-    saltar: "SKIP ▸", saltarTitulo: "Skip the intro and go to the projects",
+    saltarIntro: "GO TO THE PROJECTS ▸",
+    saltar: "SEE PROJECTS ▸", saltarTitulo: "Go straight to the projects, no intro",
+    verPagina: "VIEW AS PAGE", verPaginaTitulo: "See the portfolio as a regular web page, without playing",
+    pistaTitulo: "Click the screen or press Enter", pistaTituloTactil: "Tap the screen to start",
+    pistaDialogo: "click or Enter ▸", pistaDialogoTactil: "tap to continue ▸",
+    pistaLab: "▸ Pick a capsule: click on it", pistaLabTactil: "▸ Tap a capsule to open it", pistaLabTeclas: "or use ← → and Enter · START opens the menu",
+    etiquetaA: "OK", etiquetaB: "BACK", startTitulo: "Open the menu (Esc)", selectTitulo: "Change option in a menu",
+    ayudaTactil: "Tap the screen to continue · A accepts · B goes back · START opens the menu",
     sonido: "SOUND", sonidoTitulo: "Turn music and sound effects on or off", idiomaTitulo: "Cambiar a español",
     menuInicio: ["NEW GAME", "VIEW PROJECTS", "CLASSIC MODE"],
     preguntaNombre: "What's your name?", opcional: "(optional)", continuar: "CONTINUE ▸", continuarAyuda: "or press START",
@@ -36,7 +42,7 @@ window.DATOS_EN = {
     giroTitulo: "ROTATE YOUR PHONE",
     giroTexto: "PROTOTYPE POCKET is played in landscape, like a handheld console. Text is easier to read that way.",
     giroBoton: "I prefer classic mode ▸",
-    ayuda: "Keyboard: arrows · Enter = A · Backspace = B · Esc = START",
+    ayuda: "Click the screen or the buttons · Keyboard: arrows, Enter = A, Backspace = B, Esc = START",
     botonA: "A button: accept", botonB: "B button: back"
   },
 

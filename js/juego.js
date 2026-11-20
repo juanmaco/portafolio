@@ -47,6 +47,19 @@
 
   /* ---------- Entrada: un solo manejador para teclado, botones y toques ---------- */
   let manejador = null;
+  // Qué botones de la consola sirven en cada momento: cada manejador declara sus teclas (sin lista = todas).
+  // Los que no hacen nada se atenúan, y la pantalla solo muestra la mano cuando un clic avanza.
+  const TODAS = ["arriba", "abajo", "izq", "der", "a", "b", "start", "select"];
+  const usa = (fn, teclas) => { fn.teclas = teclas; return fn; };
+  const tactil = matchMedia("(pointer: coarse)").matches;
+  function pintarControles() {
+    if (manejador) {
+      const teclas = manejador.teclas || TODAS;
+      document.querySelectorAll("[data-tecla]").forEach(b => { const off = !teclas.includes(b.dataset.tecla); b.classList.toggle("inactivo", off); b.setAttribute("aria-disabled", off); });
+    }
+    marco.classList.toggle("clicable", !!ui.querySelector(".dialogo:not(.fija)") || escenaActual === "titulo" || escenaActual === "encendido");
+  }
+  setInterval(pintarControles, 150);
   const S = window.Sonido || { sfx() {}, pista() {}, alternar() { return false; }, activo: false };
   const sonarTecla = t => {
     if (t && t.click !== undefined) return S.sfx("a");
@@ -66,7 +79,8 @@
     const t = mapa[e.key]; if (t) { e.preventDefault(); enviar(t); pulsar(t); }
   });
   document.querySelectorAll("[data-tecla]").forEach(b => b.addEventListener("click", () => { enviar(b.dataset.tecla); vibrar(); }));
-  marco.addEventListener("click", e => { if (!e.target.closest("[data-click]")) enviar("a"); });
+  // Un clic en la pantalla solo avanza cuando hay algo que avanzar (diálogo, portada): nada de acciones sorpresa
+  marco.addEventListener("click", e => { if (!e.target.closest("[data-click]") && marco.classList.contains("clicable")) enviar("a"); });
   ui.addEventListener("click", e => { const el = e.target.closest("[data-click]"); if (el) { e.stopPropagation(); enviar({ click: el.dataset.click }); } });
   const vibrar = () => { try { navigator.vibrate && navigator.vibrate(12); } catch (e) {} };
   function pulsar(t) { const b = document.querySelector(`[data-tecla="${t}"]`); if (!b) return; b.classList.add("activo"); setTimeout(() => b.classList.remove("activo"), 120); }
@@ -80,16 +94,18 @@
     let i = 0, entregada = false;
     const caja = document.createElement("div");
     caja.className = "caja dialogo";
-    caja.innerHTML = `<div class="caja-int"></div><span class="flecha" hidden></span>`;
+    // Pista «clic o Enter ▸» junto a la flecha durante los primeros diálogos de la visita
+    caja.innerHTML = `<div class="caja-int"></div><span class="pista-dialogo" hidden>${tactil ? D.ui.pistaDialogoTactil : D.ui.pistaDialogo}</span><span class="flecha" hidden></span>`;
     ui.appendChild(caja);
-    const txt = caja.firstChild, flecha = caja.lastChild;
+    const txt = caja.firstChild, pista = caja.children[1], flecha = caja.lastChild;
     const listo = () => {
       const ultima = i === lineas.length - 1;
       flecha.hidden = mantener && ultima;
-      if (mantener && ultima && !entregada) { entregada = true; manejador = anterior; if (alTerminar) alTerminar(caja); }
+      pista.hidden = flecha.hidden || (estado.pistas || 0) >= 4;
+      if (mantener && ultima && !entregada) { entregada = true; caja.classList.add("fija"); manejador = anterior; if (alTerminar) alTerminar(caja); }
     };
     const mostrar = () => {
-      const linea = lineas[i]; let n = 0; flecha.hidden = true;
+      const linea = lineas[i]; let n = 0; flecha.hidden = true; pista.hidden = true;
       caja.classList.toggle("lleno", linea.split("\n").length > 2);
       clearInterval(escribiendo);
       const reducido = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -97,13 +113,13 @@
       escribiendo = setInterval(() => { n += 1; txt.textContent = linea.slice(0, n); if (n % 3 === 1 && linea[n - 1] !== " ") S.sfx("tic"); if (n >= linea.length) { clearInterval(escribiendo); escribiendo = null; listo(); } }, 26);
     };
     const anterior = manejador;
-    manejador = t => {
+    manejador = usa(t => {
       if (t !== "a" && t !== "b") return;
       if (escribiendo) { clearInterval(escribiendo); escribiendo = null; txt.textContent = lineas[i]; listo(); return; }
-      i += 1;
+      i += 1; estado.pistas = (estado.pistas || 0) + 1;
       if (i < lineas.length) { mostrar(); return; }
       caja.remove(); manejador = anterior; if (alTerminar) alTerminar();
-    };
+    }, ["a", "b"]);
     mostrar();
     return caja;
   }
@@ -121,13 +137,13 @@
         `<li role="menuitem" data-click="${k}" class="${k === sel ? "sel" : ""}">${esc(o)}</li>`).join("")}</ul></div>`;
     };
     pintar(); ui.appendChild(caja);
-    manejador = t => {
+    manejador = usa(t => {
       if (t && t.click !== undefined) { sel = +t.click; pintar(); return elegir(); }
       if (t === "arriba") { sel = (sel + opciones.length - 1) % opciones.length; pintar(); }
       if (t === "abajo" || t === "select") { sel = (sel + 1) % opciones.length; pintar(); }
       if (t === "a") elegir();
       if (t === "b" && alVolver) { caja.remove(); alVolver(); }
-    };
+    }, ["arriba", "abajo", "a", "select", ...(alVolver ? ["b"] : [])]);
     function elegir() { caja.remove(); alElegir(sel); }
     return caja;
   }
@@ -148,17 +164,18 @@
     const barras = ui.querySelectorAll(".barra i"); let k = 0;
     S.sfx("encender");
     const t = setInterval(() => { if (barras[k]) barras[k].classList.add("on"); k += 1; if (k > 10 || escenaActual !== "encendido") { clearInterval(t); if (escenaActual === "encendido") titulo(); } }, 170);
-    manejador = tc => { if (tc === "a" || tc === "start") { clearInterval(t); titulo(); } };
+    manejador = usa(tc => { if (tc === "a" || tc === "start") { clearInterval(t); titulo(); } }, ["a", "start"]);
   }
 
   async function titulo() {
     await escena("titulo", "titulo");
     ui.innerHTML = `<div class="press texto-contorno parpadeo">▸ PRESS START ◂</div>
-      <div class="pie-titulo"><span>© 2026 JMC</span><span data-click="saltar">${D.ui.saltarIntro}</span></div>`;
-    manejador = t => {
+      <div class="pista-titulo">${tactil ? D.ui.pistaTituloTactil : D.ui.pistaTitulo}</div>
+      <div class="pie-titulo"><span>© 2026 JMC</span><span class="enlace-pie" data-click="saltar">${D.ui.saltarIntro}</span></div>`;
+    manejador = usa(t => {
       if (t && t.click === "saltar") return saltar();
       if (t === "a" || t === "start") menuInicio();
-    };
+    }, ["a", "start"]);
   }
 
   async function menuInicio() {
@@ -247,14 +264,20 @@
     const mover = () => { fondo.querySelectorAll(".capsula, .sombra-cap").forEach(g => g.classList.toggle("sel", +g.dataset.i === estado.sel)); const cur = $(".cursor-lab", ui); cur.style.left = centros[estado.sel] - 13 + "px"; cur.style.animation = "none"; void cur.offsetWidth; cur.style.animation = ""; };
     mover();
     const libre = () => {
-      manejador = t => {
+      manejador = usa(t => {
         if (t && t.click && t.click.startsWith("cap")) { estado.sel = +t.click.slice(3); mover(); return ficha(estado.sel); }
         if (t === "der") { estado.sel = (estado.sel + 1) % 3; mover(); }
         if (t === "izq") { estado.sel = (estado.sel + 2) % 3; mover(); }
         if (t === "a") ficha(estado.sel);
         if (t === "start") menuStart();
-      };
+      }, ["izq", "der", "a", "start"]);
+      manejador.libre = true;
+      // Pista visible de qué hacer: elegir una cápsula (con clic o toque; con teclado, flechas y Enter)
+      if (!ui.querySelector(".pista-lab")) ui.insertAdjacentHTML("beforeend",
+        `<div class="pista-lab"><b>${tactil ? D.ui.pistaLabTactil : D.ui.pistaLab}</b>${tactil ? "" : `<small>${D.ui.pistaLabTeclas}</small>`}</div>`);
     };
+    // Con el mouse, pasar por encima de una cápsula la selecciona (borde y rebote), como en un menú
+    ui.querySelectorAll(".zona-capsula").forEach((z, k) => z.addEventListener("mouseenter", () => { if (manejador && manejador.libre && estado.sel !== k) { estado.sel = k; mover(); S.sfx("mover"); } }));
     if (!estado.visitoLab) { estado.visitoLab = true; decir(saltando === true ? D.lab.slice(1) : D.lab, libre); }
     else if (vistos.length && estado.avisados !== vistos.length && !estado.cierreVisto) {
       estado.avisados = vistos.length;
@@ -318,8 +341,16 @@
     const a = document.createElement("a"); a.href = D.contacto.cv; a.download = D.contacto.cvArchivo;
     document.body.appendChild(a); a.click(); a.remove();
   }
-  function saltar() { estado.visitoLab = false; laboratorio(true); }
+  // «VER PROYECTOS»: lleva directo al laboratorio ya libre, sin diálogos que pasar (y desde un caso o el modo clásico, vuelve a la consola)
+  function saltar() {
+    vistaCaso.hidden = true; vistaClasico.hidden = true; consola.hidden = false; document.body.classList.remove("modo-clasico");
+    document.title = D.ui.titulo; ajustar();
+    estado.visitoLab = true; estado.avisados = estado.vistos.length;
+    if (D.proyectos[estado.sel].proximamente) estado.sel = D.proyectos.findIndex(p => !p.proximamente);
+    laboratorio();
+  }
   $("#btn-saltar").addEventListener("click", saltar);
+  $("#btn-pagina").addEventListener("click", () => modoClasico());
   const btnSonido = $("#btn-sonido");
   // Botón de sonido tipo píldora: dice SONIDO/SOUND con su estado y, hasta que el visitante lo use una vez, late suavemente
   const pintarSonido = on => {
@@ -424,8 +455,11 @@
     const u = D.ui;
     document.documentElement.lang = idioma;
     $("#giro-titulo").textContent = u.giroTitulo; $("#giro p").textContent = u.giroTexto; $('#giro [data-accion="clasico"]').textContent = u.giroBoton;
-    $(".ayuda").textContent = u.ayuda;
+    $(".ayuda").textContent = tactil ? u.ayudaTactil : u.ayuda;
     const bs = $("#btn-saltar"); bs.textContent = u.saltar; bs.title = u.saltarTitulo;
+    const bp = $("#btn-pagina"); bp.textContent = u.verPagina; bp.title = u.verPaginaTitulo;
+    $(".eti-a").textContent = u.etiquetaA; $(".eti-b").textContent = u.etiquetaB;
+    $('[data-tecla="start"]').title = u.startTitulo; $('[data-tecla="select"]').title = u.selectTitulo;
     btnSonido.title = u.sonidoTitulo; pintarSonido(S.activo);
     $('[data-tecla="a"]').setAttribute("aria-label", u.botonA); $('[data-tecla="b"]').setAttribute("aria-label", u.botonB);
     [btnIdioma, btnIdiomaFlotante].forEach(b => {

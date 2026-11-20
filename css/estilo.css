@@ -68,7 +68,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* Teléfono horizontal: emulador, sin carcasa y aprovechando todo el alto */
 @media (orientation: landscape) and (max-height: 520px) {
-  .consola { grid-template-rows: auto auto; grid-template-areas: "cruz top botones" "cruz bisel botones"; gap: 4px 18px; padding: 6px max(16px, env(safe-area-inset-left)) 6px max(16px, env(safe-area-inset-right)); position: relative; }
+  .consola { grid-template-rows: auto auto; grid-template-areas: "cruz top top" "cruz bisel botones"; gap: 4px 18px; padding: 6px max(16px, env(safe-area-inset-left)) 6px max(16px, env(safe-area-inset-right)); position: relative; }
   .barra-superior { padding: 0 4px; }
   .marca, .ayuda { display: none; }
   .marco { width: min(calc((100dvh - 64px) * 1.5), calc(100vw - 372px)); }
@@ -200,7 +200,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .capsula.sel, .sombra-cap.sel, .cursor-lab { animation: none; } }
 .cursor-lab { position: absolute; top: 112px; width: 27px; height: 15px; transition: left .15s steps(3); animation: cursor-cap 1.1s infinite; }
 @keyframes cursor-cap { 0%, 100% { transform: translateY(0); animation-timing-function: cubic-bezier(.2, .7, .4, 1); } 50% { transform: translateY(-12px); animation-timing-function: cubic-bezier(.6, 0, .8, .3); } }
-.zona-capsula { position: absolute; top: 126px; width: 96px; height: 120px; cursor: pointer; }
+.zona-capsula { position: absolute; top: 126px; width: 96px; height: 190px; cursor: pointer; } /* incluye el nombre en la mesa */
 .visto { position: absolute; top: 242px; transform: translateX(-50%); font: 700 13px/1 var(--pixel); letter-spacing: 1px; white-space: nowrap; color: var(--papel); background: var(--turquesa); border: 3px solid var(--tinta); box-shadow: 3px 3px 0 var(--tinta); padding: 4px 7px 3px; pointer-events: none; }
 .lab-nombre.sel { color: var(--amarillo); }
 
@@ -346,3 +346,50 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* En los casos y el modo clásico el idioma flota abajo a la derecha */
 .idioma-flotante { position: fixed; right: 16px; bottom: 16px; z-index: 30; background: var(--tinta); border-color: var(--papel); box-shadow: 3px 3px 0 #00000055; }
 .idioma-flotante:hover { background: var(--tinta); border-color: var(--amarillo); }
+
+/* ---------- Señales de interacción (feedback de usuarios que no juegan) ---------- */
+/* Los controles reaccionan al pasar el cursor; los que no sirven en la escena actual se atenúan */
+.dir:hover { background: #3D4790; color: #FFFFFF; }
+.btn:hover { filter: brightness(1.08); }
+.pildora:hover { border-color: #FFFFFFAA; color: #FFFFFF; }
+.dir.inactivo, .btn.inactivo, .pildora.inactivo { opacity: .35; cursor: default; filter: none; }
+.dir.inactivo:hover { background: #2A2F4A; color: #FFFFFFAA; }
+.pildora.inactivo:hover { border-color: #FFFFFF44; }
+@media (min-width: 1000px) and (min-height: 620px) { .dir.inactivo:hover { background: #2A2A3A; } }
+.marco.clicable { cursor: pointer; }
+/* Qué hace cada botón */
+.etiqueta-btn { position: absolute; width: 76px; text-align: center; font-family: var(--pixel); font-weight: 700; font-size: 11px; letter-spacing: 1px; color: #FBF7EACC; pointer-events: none; }
+.eti-a { right: 0; top: 92px; }
+.eti-b { left: 0; top: 164px; }
+.btn.inactivo ~ .etiqueta-btn { opacity: .5; }
+/* Barra superior: acciones a la derecha */
+.grupo-mini.derecha { justify-content: flex-end; }
+.pill.accion { font-size: 13px; padding: 7px 12px; }
+#btn-saltar { background: var(--amarillo); border-color: var(--tinta); color: var(--tinta); }
+#btn-saltar:hover { background: #FFD45E; }
+/* Pistas dentro de la pantalla (coordenadas 720×480) */
+.pista-titulo { position: absolute; left: 0; right: 0; top: 424px; text-align: center; font-size: 16px; color: var(--papel); text-shadow: 2px 2px 0 var(--tinta); }
+.enlace-pie { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.enlace-pie:hover { color: var(--amarillo); }
+.pista-dialogo { position: absolute; right: 62px; bottom: 24px; font-size: 14px; color: #8A8070; text-shadow: none; }
+.pista-lab { position: absolute; left: 50%; top: 362px; transform: translateX(-50%); padding: 8px 18px 9px; background: #1A1420E6; border: 3px solid var(--papel); border-radius: 8px; text-align: center; color: var(--papel); white-space: nowrap; pointer-events: none; }
+.pista-lab b { display: block; font-size: 18px; }
+.pista-lab small { display: block; margin-top: 4px; font-size: 12px; color: #BFE6FA; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .etiqueta-btn { width: 64px; font-size: 10px; }
+  .eti-a { top: 77px; }
+  .eti-b { top: 132px; }
+  .pill.accion { font-size: 12px; padding: 6px 10px; }
+}
+/* La barra superior y la ayuda ocupan todo el ancho sin ensanchar las columnas de la consola (si no, la pantalla se monta sobre los botones) */
+.barra-superior, .ayuda { width: 0; min-width: 100%; }
+.ayuda { line-height: 1.5; }
+/* Móvil horizontal: la barra solo mide lo que la pantalla, así que los botones van compactos y en una línea */
+.pill { white-space: nowrap; }
+@media (orientation: landscape) and (max-height: 520px) {
+  .grupo-mini { gap: 6px; }
+  .pill, .pill.accion { font-size: 11px; padding: 5px 9px; gap: 5px; letter-spacing: .5px; }
+  .pill .ico { font-size: 13px; }
+  .pill.idioma { padding: 2px; }
+  .pill.idioma .seg { padding: 3px 7px; }
+}

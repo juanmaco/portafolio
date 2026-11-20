@@ -14,8 +14,14 @@ window.DATOS = {
   ui: {
     titulo: "Juan Manuel Córdoba · Product Designer",
     cargando: "Cargando prototipo…",
-    saltarIntro: "SALTAR INTRO ▸",
-    saltar: "SALTAR ▸", saltarTitulo: "Saltar la intro e ir a los proyectos",
+    saltarIntro: "IR A LOS PROYECTOS ▸",
+    saltar: "VER PROYECTOS ▸", saltarTitulo: "Ir directo a los proyectos, sin la intro",
+    verPagina: "VER COMO PÁGINA", verPaginaTitulo: "Ver el portafolio como una página web normal, sin jugar",
+    pistaTitulo: "Haz clic en la pantalla o pulsa Enter", pistaTituloTactil: "Toca la pantalla para empezar",
+    pistaDialogo: "clic o Enter ▸", pistaDialogoTactil: "toca para seguir ▸",
+    pistaLab: "▸ Elige una cápsula: haz clic en ella", pistaLabTactil: "▸ Toca una cápsula para abrirla", pistaLabTeclas: "o usa ← → y Enter · START abre el menú",
+    etiquetaA: "ACEPTAR", etiquetaB: "VOLVER", startTitulo: "Abrir el menú (Esc)", selectTitulo: "Cambiar de opción en un menú",
+    ayudaTactil: "Toca la pantalla para avanzar · A acepta · B vuelve · START abre el menú",
     sonido: "SONIDO", sonidoTitulo: "Activar o silenciar la música y los efectos", idiomaTitulo: "Switch to English",
     menuInicio: ["NUEVA PARTIDA", "VER PROYECTOS", "MODO CLÁSICO"],
     preguntaNombre: "¿Cómo te llamas?", opcional: "(opcional)", continuar: "CONTINUAR ▸", continuarAyuda: "o pulsa START",
@@ -38,7 +44,7 @@ window.DATOS = {
     giroTitulo: "GIRA TU TELÉFONO",
     giroTexto: "PROTOTYPE POCKET se juega en horizontal, como una consola portátil. Así los textos se leen mejor.",
     giroBoton: "Prefiero el modo clásico ▸",
-    ayuda: "Teclado: flechas · Enter = A · Retroceso = B · Esc = START",
+    ayuda: "Haz clic en la pantalla o en los botones · Teclado: flechas, Enter = A, Retroceso = B, Esc = START",
     botonA: "Botón A: aceptar", botonB: "Botón B: volver"
   },
 

@@ -365,8 +365,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* Barra superior: acciones a la derecha */
 .grupo-mini.derecha { justify-content: flex-end; }
 .pill.accion { font-size: 13px; padding: 7px 12px; }
-#btn-saltar { background: var(--amarillo); border-color: var(--tinta); color: var(--tinta); }
-#btn-saltar:hover { background: #FFD45E; }
+/* «Ver proyectos» es secundario: no compite con PRESS START; se muestra cuando ya empezó la intro */
+#btn-saltar.oculto { visibility: hidden; }
+
 /* Pistas dentro de la pantalla (coordenadas 720×480) */
 .pista-titulo { position: absolute; left: 0; right: 0; top: 424px; text-align: center; font-size: 16px; color: var(--papel); text-shadow: 2px 2px 0 var(--tinta); }
 .enlace-pie { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }

@@ -15,7 +15,7 @@ window.DATOS_EN = {
     saltarIntro: "GO TO THE PROJECTS ▸",
     saltar: "SEE PROJECTS ▸", saltarTitulo: "Go straight to the projects, no intro",
     verPagina: "VIEW AS PAGE", verPaginaTitulo: "See the portfolio as a regular web page, without playing",
-    pistaTitulo: "Click the screen or press Enter", pistaTituloTactil: "Tap the screen to start",
+    pistaTitulo: "Click the screen or press Enter · takes about 3 minutes", pistaTituloTactil: "Tap the screen to start · takes about 3 minutes",
     pistaDialogo: "click or Enter ▸", pistaDialogoTactil: "tap to continue ▸",
     pistaLab: "▸ Pick a capsule: click on it", pistaLabTactil: "▸ Tap a capsule to open it", pistaLabTeclas: "or use ← → and Enter · START opens the menu",
     etiquetaA: "OK", etiquetaB: "BACK", startTitulo: "Open the menu (Esc)", selectTitulo: "Change option in a menu",

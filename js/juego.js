@@ -58,6 +58,8 @@
       document.querySelectorAll("[data-tecla]").forEach(b => { const off = !teclas.includes(b.dataset.tecla); b.classList.toggle("inactivo", off); b.setAttribute("aria-disabled", off); });
     }
     marco.classList.toggle("clicable", !!ui.querySelector(".dialogo:not(.fija)") || escenaActual === "titulo" || escenaActual === "encendido");
+    // «Ver proyectos» no aparece en la portada ni en el menú (ahí la invitación es jugar, y el menú ya tiene esa opción) ni en el laboratorio
+    $("#btn-saltar").classList.toggle("oculto", ["encendido", "titulo", "menu", "lab"].includes(escenaActual));
   }
   setInterval(pintarControles, 150);
   const S = window.Sonido || { sfx() {}, pista() {}, alternar() { return false; }, activo: false };

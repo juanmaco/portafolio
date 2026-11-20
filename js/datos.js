@@ -17,7 +17,7 @@ window.DATOS = {
     saltarIntro: "IR A LOS PROYECTOS ▸",
     saltar: "VER PROYECTOS ▸", saltarTitulo: "Ir directo a los proyectos, sin la intro",
     verPagina: "VER COMO PÁGINA", verPaginaTitulo: "Ver el portafolio como una página web normal, sin jugar",
-    pistaTitulo: "Haz clic en la pantalla o pulsa Enter", pistaTituloTactil: "Toca la pantalla para empezar",
+    pistaTitulo: "Haz clic en la pantalla o pulsa Enter · dura unos 3 minutos", pistaTituloTactil: "Toca la pantalla para empezar · dura unos 3 minutos",
     pistaDialogo: "clic o Enter ▸", pistaDialogoTactil: "toca para seguir ▸",
     pistaLab: "▸ Elige una cápsula: haz clic en ella", pistaLabTactil: "▸ Toca una cápsula para abrirla", pistaLabTeclas: "o usa ← → y Enter · START abre el menú",
     etiquetaA: "ACEPTAR", etiquetaB: "VOLVER", startTitulo: "Abrir el menú (Esc)", selectTitulo: "Cambiar de opción en un menú",

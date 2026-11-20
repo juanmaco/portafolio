@@ -181,10 +181,11 @@
     ui.innerHTML = `<div class="press texto-contorno parpadeo">▸ PRESS START ◂</div>
       <div class="pista-titulo">${tactil ? D.ui.pistaTituloTactil : D.ui.pistaTitulo}</div>
       <div class="pie-titulo"><span>© 2026 JMC</span><span class="enlace-pie" data-click="saltar">${D.ui.saltarIntro}</span></div>`;
+    // En la portada cualquier botón inicia (como «press any button» en una consola): todos se ven activos
     manejador = usa(t => {
       if (t && t.click === "saltar") return saltar();
-      if (t === "a" || t === "start") menuInicio();
-    }, ["a", "start"]);
+      if (typeof t === "string") menuInicio();
+    }, TODAS);
   }
 
   async function menuInicio() {

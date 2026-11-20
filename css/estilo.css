@@ -394,3 +394,5 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .pill.idioma { padding: 2px; }
   .pill.idioma .seg { padding: 3px 7px; }
 }
+/* Descripción de la opción elegida en el menú de inicio */
+.menu-desc { position: absolute; left: 50%; transform: translateX(-50%); padding: 6px 16px 7px; background: #1A1420E6; border: 3px solid var(--papel); border-radius: 8px; color: var(--papel); font-size: 16px; white-space: nowrap; pointer-events: none; }

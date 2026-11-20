@@ -127,26 +127,33 @@
   }
 
   /* ---------- Menú genérico ---------- */
-  function menu({ x, y, w, h, opciones, alElegir, alVolver, fuente = 27, alto = 42 }) {
+  // descripciones (opcional): una línea bajo el menú que explica la opción seleccionada
+  function menu({ x, y, w, h, opciones, alElegir, alVolver, fuente = 27, alto = 42, descripciones = null }) {
     let sel = 0;
     // Alto según el contenido: marco (6+9)×2 + borde interior 3×2 + relleno 12 arriba y 16 abajo (la franja inferior ocupa 12).
     h = opciones.length * alto + 64;
     const caja = document.createElement("div");
     caja.className = "caja menu";
     Object.assign(caja.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" });
+    let desc = null;
+    if (descripciones) { desc = document.createElement("div"); desc.className = "menu-desc"; desc.style.top = y + h + 12 + "px"; }
     const pintar = () => {
       caja.innerHTML = `<div class="caja-int" style="font-size:${fuente}px;line-height:${alto}px"><ul role="menu">${opciones.map((o, k) =>
         `<li role="menuitem" data-click="${k}" class="${k === sel ? "sel" : ""}">${esc(o)}</li>`).join("")}</ul></div>`;
+      if (desc) desc.textContent = descripciones[sel] || "";
     };
-    pintar(); ui.appendChild(caja);
+    pintar(); ui.appendChild(caja); if (desc) ui.appendChild(desc);
+    // Con el mouse, pasar por una opción la selecciona (y actualiza su descripción)
+    caja.addEventListener("mouseover", e => { const li = e.target.closest("li[data-click]"); if (li && +li.dataset.click !== sel) { sel = +li.dataset.click; pintar(); } });
+    const cerrar = () => { caja.remove(); if (desc) desc.remove(); };
     manejador = usa(t => {
       if (t && t.click !== undefined) { sel = +t.click; pintar(); return elegir(); }
       if (t === "arriba") { sel = (sel + opciones.length - 1) % opciones.length; pintar(); }
       if (t === "abajo" || t === "select") { sel = (sel + 1) % opciones.length; pintar(); }
       if (t === "a") elegir();
-      if (t === "b" && alVolver) { caja.remove(); alVolver(); }
+      if (t === "b" && alVolver) { cerrar(); alVolver(); }
     }, ["arriba", "abajo", "a", "select", ...(alVolver ? ["b"] : [])]);
-    function elegir() { caja.remove(); alElegir(sel); }
+    function elegir() { cerrar(); alElegir(sel); }
     return caja;
   }
 
@@ -183,8 +190,24 @@
   async function menuInicio() {
     await escena("menu", "cuarto");
     ui.innerHTML = `<div class="oscurecer"></div><div class="press texto-contorno" style="top:60px;font-size:48px;line-height:54px">JUAN MANUEL<br>CÓRDOBA</div>`;
-    menu({ x: 198, y: 222, w: 324, h: 186, opciones: D.ui.menuInicio, alVolver: titulo,
-      alElegir: k => [intro, () => laboratorio(true), modoClasico][k]() });
+    // Dos caminos: jugar o ver como página. Quien ya llegó al laboratorio antes ve además CONTINUAR (primero).
+    const m = D.ui.menuInicio, d = D.ui.menuInicioDesc;
+    // Quien ya jugó: CONTINUAR, NUEVA PARTIDA (desde cero) y VER COMO PÁGINA
+    const items = leer("jugado", false) ? [["continuar", continuar], ["nueva", nuevaPartida], ["pagina", () => modoClasico()]] : [["jugar", intro], ["pagina", () => modoClasico()]];
+    menu({ x: 180, y: items.length > 2 ? 200 : 226, w: 360, opciones: items.map(i => m[i[0]]), descripciones: items.map(i => d[i[0]]),
+      alVolver: titulo, alElegir: k => items[k][1]() });
+  }
+  // Nueva partida: borra el avance (proyectos vistos y nombre) y arranca la intro completa
+  function nuevaPartida() {
+    estado.vistos = []; guardar("vistos", []); estado.nombre = ""; guardar("nombre", "");
+    Object.assign(estado, { visitoLab: false, avisados: 0, cierreVisto: false, sel: 1, destaca: 1 });
+    intro();
+  }
+  // Quien vuelve entra directo al laboratorio con un saludo, sin repetir la intro
+  function continuar() {
+    estado.visitoLab = true; estado.avisados = estado.vistos.length;
+    if (D.proyectos[estado.sel].proximamente) estado.sel = D.proyectos.findIndex(p => !p.proximamente);
+    laboratorio(false, true);
   }
 
   async function intro() {
@@ -254,8 +277,9 @@
 
   /* Laboratorio: cápsulas en x = 216, 360, 504 (centros) */
   const centros = [216, 360, 504];
-  async function laboratorio(saltando) {
+  async function laboratorio(saltando, regreso = false) {
     await escena("lab", "lab");
+    guardar("jugado", true); // a partir de aquí el menú de inicio ofrece CONTINUAR
     // Al entrar por primera vez, el cursor arranca en una cápsula disponible (no en una «Próximamente»)
     if (!estado.visitoLab && D.proyectos[estado.sel].proximamente) estado.sel = D.proyectos.findIndex(p => !p.proximamente);
     const vistos = estado.vistos.filter(id => disponibles().some(p => p.id === id));
@@ -280,7 +304,8 @@
     };
     // Con el mouse, pasar por encima de una cápsula la selecciona (borde y rebote), como en un menú
     ui.querySelectorAll(".zona-capsula").forEach((z, k) => z.addEventListener("mouseenter", () => { if (manejador && manejador.libre && estado.sel !== k) { estado.sel = k; mover(); S.sfx("mover"); } }));
-    if (!estado.visitoLab) { estado.visitoLab = true; decir(saltando === true ? D.lab.slice(1) : D.lab, libre); }
+    if (regreso) decir(D.ui.holaDeNuevo, libre);
+    else if (!estado.visitoLab) { estado.visitoLab = true; decir(saltando === true ? D.lab.slice(1) : D.lab, libre); }
     else if (vistos.length && estado.avisados !== vistos.length && !estado.cierreVisto) {
       estado.avisados = vistos.length;
       // Con todos los disponibles vistos el laboratorio sigue libre: el recorrido termina con FINALIZAR (en el caso o en START)

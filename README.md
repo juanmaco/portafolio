@@ -12,3 +12,11 @@ Portafolio de Lead Product Designer (UX/UI, Product Design y Ops) convertido en 
 - En español e inglés (botón ES / EN; abre según el idioma del navegador o con `?lang=en`), con CV descargable en cada idioma.
 
 Para verlo en local: `powershell -ExecutionPolicy Bypass -File servidor.ps1` y abrir http://localhost:8080
+
+## Publicar cambios
+
+Antes de cada commit, actualiza la versión de los archivos en `index.html` para que los navegadores no usen la copia vieja (GitHub Pages guarda en caché 10 minutos):
+
+```bash
+V=$(date +%Y%m%d%H%M); sed -i -E "s#(css/estilo.css|js/[a-z_]+.js)(\?v=[0-9]+)?\"#\1?v=$V\"#g" index.html
+```

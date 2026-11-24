@@ -222,7 +222,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* ---------- Caso de estudio (página web) ---------- */
 .caso { background: var(--papel); color: var(--texto); min-height: 100vh; font-family: var(--sans); }
-.caso-nav { position: sticky; top: 0; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px clamp(16px, 8vw, 120px); background: var(--tinta); color: var(--papel); font-family: var(--pixel); }
+.caso-cabecera { position: sticky; top: 0; z-index: 5; }
+.caso-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px clamp(16px, 8vw, 120px); background: var(--tinta); color: var(--papel); font-family: var(--pixel); }
 .caso-nav button { background: none; border: 0; font-family: var(--pixel); font-weight: 700; font-size: 16px; padding: 6px 0; }
 .caso-nav .sig { color: var(--cielo); }
 .caso-nav .num { color: var(--amarillo); letter-spacing: 2px; font-size: 14px; }
@@ -281,6 +282,84 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .caso-nav .fin { color: var(--amarillo); }
 .caso-fin nav { margin-top: 24px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
 .caso-fin nav a { color: var(--cielo); }
+/* ---------- Caso en formato historia: índice, resumen de 30 s, decisiones e imágenes anotadas ---------- */
+.caso-indice { position: relative; display: flex; align-items: center; gap: 16px; padding: 8px clamp(16px, 8vw, 120px); background: var(--papel); border-bottom: 3px solid var(--tinta); }
+.caso-indice .lectura { flex: none; font-family: var(--pixel); font-size: 14px; color: #6A6070; white-space: nowrap; }
+.ind-items { position: relative; flex: 1; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.ind-items::-webkit-scrollbar { display: none; }
+.ind-items a { flex: none; font-family: var(--pixel); font-size: 15px; color: var(--tinta); text-decoration: none; white-space: nowrap; padding: 5px 12px; border: 2px solid transparent; border-radius: 999px; transition: background .2s, color .2s; }
+.ind-items a:hover { border-color: var(--tinta); }
+.ind-items a.activa { background: var(--tinta); color: var(--papel); }
+.caso-indice .progreso { position: absolute; left: 0; right: 0; bottom: -3px; height: 3px; }
+.caso-indice .progreso i { display: block; width: 0; height: 100%; background: var(--acento); }
+.caso [id^="sec-"] { scroll-margin-top: 104px; }
+
+.caso-r30 { --lado: max(clamp(16px, 8.33vw, 120px), calc((100% - 1200px) / 2)); padding: 64px var(--lado); background: #fff; display: flex; flex-direction: column; gap: 24px; }
+.caso-r30 .etq { font-family: var(--pixel); font-weight: 700; font-size: 16px; letter-spacing: 3px; color: var(--acento); }
+.r30-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.r30-item { background: var(--papel); border: 3px solid var(--tinta); border-radius: 8px; padding: 24px; }
+.r30-n { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--acento); color: #fff; font-family: var(--sans); font-weight: 700; font-size: 14px; }
+.r30-item h3 { font-family: var(--pixel); font-size: 17px; letter-spacing: 2px; color: var(--tinta); margin: 14px 0 8px; }
+.r30-item p { margin: 0; font-size: 17px; line-height: 27px; }
+.r30-rol { margin: 0; font-size: 16px; line-height: 25px; }
+.r30-rol b { font-family: var(--pixel); letter-spacing: 2px; color: var(--acento); margin-right: 8px; }
+
+.caso-pasos { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.caso-pasos li { position: relative; background: #fff; border: 3px solid var(--tinta); border-radius: 8px; padding: 20px 22px; }
+.caso-sec.claro .caso-pasos li { background: var(--papel); }
+.caso-pasos li:last-child { background: var(--oscuro) !important; color: var(--papel); }
+.caso-pasos li:not(:last-child)::after { content: "▸"; position: absolute; right: -22px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--tinta); }
+.caso-pasos small { display: block; font-family: var(--pixel); font-weight: 700; font-size: 14px; letter-spacing: 2px; color: var(--acento); margin-bottom: 8px; }
+.caso-pasos li:last-child small { color: var(--amarillo); }
+.caso-pasos p { margin: 0; font-size: 17px; line-height: 26px; }
+
+.caso-mas summary { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; list-style: none; font-family: var(--pixel); font-weight: 700; font-size: 15px; color: var(--acento); }
+.caso-mas summary::-webkit-details-marker { display: none; }
+.caso-mas summary::before { content: "▸"; transition: transform .2s; }
+.caso-mas[open] summary::before { transform: rotate(90deg); }
+.caso-mas .cerrar, .caso-mas[open] .abrir { display: none; }
+.caso-mas[open] .cerrar { display: inline; }
+.caso-mas p { margin: 12px 0 0; max-width: 860px; font-size: 17px; line-height: 28px; }
+
+.caso-fig { margin: 16px 0 0; display: flex; flex-direction: column; gap: 16px; }
+.fig-lienzo { position: relative; }
+.caso-fig figcaption { color: var(--texto); }
+.fig-que { margin: 0; font-size: 17px; line-height: 26px; font-weight: 600; color: var(--tinta); }
+.fig-porque { margin: 6px 0 0; font-size: 16px; line-height: 25px; }
+.fig-porque b { color: var(--acento); }
+.caso-fig figcaption h3 { font-family: var(--pixel); font-size: 14px; letter-spacing: 2px; color: var(--acento); margin: 20px 0 8px; }
+.caso-fig.anotada { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(260px, 1fr); gap: 40px; align-items: center; }
+.fig-notas { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.fig-notas li { display: flex; gap: 12px; align-items: flex-start; font-size: 16px; line-height: 24px; padding: 8px 10px; border: 2px solid transparent; border-radius: 8px; cursor: default; transition: border-color .2s, background .2s; }
+.fig-notas li span, .punto { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font-family: var(--sans); font-weight: 700; font-size: 13px; }
+.fig-notas li span { background: var(--tinta); color: var(--papel); }
+.fig-notas li.activa { border-color: var(--acento); background: #fff; }
+.caso-sec.claro .fig-notas li.activa { background: var(--papel); }
+.fig-notas li.activa span { background: var(--acento); }
+.punto { position: absolute; transform: translate(-50%, -50%); padding: 0; background: var(--acento); color: #fff; border: 3px solid #fff; box-shadow: 0 0 0 2px var(--tinta); transition: transform .2s; }
+.punto::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 3px solid var(--acento); animation: punto-pulso 2s ease-out infinite; pointer-events: none; }
+.punto.activa { transform: translate(-50%, -50%) scale(1.25); background: var(--tinta); }
+@keyframes punto-pulso { from { transform: scale(1); opacity: .9; } to { transform: scale(1.9); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .punto::after { animation: none; opacity: 0; } }
+.fig-badge { position: absolute; top: 12px; left: 12px; font-family: var(--pixel); font-weight: 700; font-size: 14px; letter-spacing: 2px; padding: 5px 12px; border: 3px solid var(--tinta); border-radius: 4px; color: var(--tinta); }
+.fig-badge.antes { background: #E6E1D6; }
+.fig-badge.despues { background: var(--turquesa); }
+.caso-comparar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; align-items: start; }
+.caso-comparar .caso-fig.anotada { grid-template-columns: 1fr; gap: 16px; }
+.caso-galeria.una .caso-fig { max-width: 960px; }
+@media (max-width: 960px) {
+  .caso-fig.anotada { grid-template-columns: 1fr; gap: 16px; }
+  .caso-pasos { grid-template-columns: 1fr; gap: 24px; }
+  .caso-pasos li:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -24px; transform: translateX(-50%) rotate(90deg); }
+}
+@media (max-width: 760px) {
+  .caso-r30 { padding: 48px 16px; }
+  .r30-items, .caso-comparar { grid-template-columns: 1fr; }
+  .caso-indice { padding: 6px 16px; gap: 10px; }
+  .caso-indice .lectura { font-size: 12px; }
+  .ind-items a { font-size: 14px; padding: 4px 10px; }
+  .punto { width: 24px; height: 24px; font-size: 12px; border-width: 2px; }
+}
 @media (max-width: 760px) {
   .caso-hero, .caso-dos, .caso-destaque { grid-template-columns: 1fr; gap: 28px; }
   .caso-hero { padding: 40px 16px; }

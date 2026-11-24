@@ -403,12 +403,30 @@
     const volverTxt = clasico ? u.volverProy : u.volverLab;
     const fin = todosVistos() && !clasico; // FINALIZAR solo aparece con los 3 proyectos vistos
     const img = (src, alt = "") => `<img src="assets/casos/${src}" alt="${esc(alt)}" loading="lazy">`;
-    const sec = s => {
-      const cls = `caso-sec ${s.fondo || ""}`, estilo = s.fondo === "oscuro" ? `style="background:${p.oscuro}"` : "";
+    // Imagen con contexto: qué se ve, por qué importa, etiqueta ANTES/DESPUÉS y puntos numerados con las decisiones de diseño
+    const figura = (f, alt) => {
+      if (typeof f === "string") return img(f, alt);
+      const notas = f.notas || [], antes = /^(ANTES|BEFORE)$/.test(f.etiqueta || "");
+      return `<figure class="caso-fig ${notas.length ? "anotada" : ""}"><div class="fig-lienzo">${img(f.src, f.que || alt)}` +
+        (f.etiqueta ? `<span class="fig-badge ${antes ? "antes" : "despues"}">${esc(f.etiqueta)}</span>` : "") +
+        notas.map((n, k) => `<button class="punto" style="left:${n.x}%;top:${n.y}%" data-n="${k}" aria-label="${u.nota} ${k + 1}: ${esc(n.texto)}">${k + 1}</button>`).join("") +
+        `</div><figcaption>${f.que ? `<p class="fig-que">${esc(f.que)}</p>` : ""}${f.porque ? `<p class="fig-porque"><b>${u.porQue}</b> ${esc(f.porque)}</p>` : ""}` +
+        (notas.length ? `<h3>${u.notasTitulo}</h3><ol class="fig-notas">${notas.map((n, k) => `<li data-n="${k}"><span>${k + 1}</span>${esc(n.texto)}</li>`).join("")}</ol>` : "") + `</figcaption></figure>`;
+    };
+    const mas = t => t ? `<details class="caso-mas"><summary><span class="abrir">${u.leerMas}</span><span class="cerrar">${u.leerMenos}</span></summary><p>${esc(t)}</p></details>` : "";
+    const corto = s => s.corto || s.etiqueta.split("·").pop().trim();
+    const sec = (s, k) => {
+      const cls = `caso-sec ${s.fondo || ""}`, estilo = `id="sec-${k}"` + (s.fondo === "oscuro" ? ` style="background:${p.oscuro}"` : "");
       let cuerpo = s.texto ? `<p class="txt">${esc(s.texto)}</p>` : "";
       const cabeza = `<div class="etq">${s.etiqueta}</div><h2>${esc(s.titulo)}</h2>`;
-      if (s.tipo === "texto") return `<section class="${cls}" ${estilo}><div class="caso-dos"><div class="caso-col">${cabeza}<p class="txt">${esc(s.texto)}</p></div><div class="caso-lista"><h3>${s.lista.titulo}</h3><ul>${s.lista.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div></div></section>`;
-      if (s.tipo === "imagenes") cuerpo += `<div class="caso-galeria ${s.imagenes.length === 1 ? "una" : ""} ${s.columnas === 4 ? "telefonos" : ""}" style="--cols:${s.columnas || 2}">${s.imagenes.map(i => img(i, s.titulo)).join("")}</div>` +
+      if (s.tipo === "texto") return `<section class="${cls}" ${estilo}><div class="caso-dos"><div class="caso-col">${cabeza}<p class="txt">${esc(s.texto)}</p>${mas(s.mas)}</div><div class="caso-lista"><h3>${s.lista.titulo}</h3><ul>${s.lista.items.map(i => `<li>${esc(i)}</li>`).join("")}</ul></div></div></section>`;
+      // Decisión: problema → insight → decisión, y las pantallas que la muestran (las dos primeras lado a lado si es un antes/después)
+      if (s.tipo === "decision") {
+        const figs = s.figuras.map(f => figura(f, s.titulo));
+        return `<section class="${cls} decision" ${estilo}>${cabeza}<ol class="caso-pasos">${s.pasos.map(([t, x]) => `<li><small>${esc(t)}</small><p>${esc(x)}</p></li>`).join("")}</ol>${mas(s.mas)}` +
+          (s.comparar ? `<div class="caso-comparar">${figs.slice(0, 2).join("")}</div>${figs.slice(2).join("")}` : figs.join("")) + `</section>`;
+      }
+      if (s.tipo === "imagenes") cuerpo += mas(s.mas) + `<div class="caso-galeria ${s.imagenes.length === 1 ? "una" : ""} ${s.columnas === 4 ? "telefonos" : ""}" style="--cols:${s.columnas || 2}">${s.imagenes.map(i => figura(i, s.titulo)).join("")}</div>` +
         (s.extra ? `<div class="caso-extra"><h3>${s.extra.titulo}</h3>${img(s.extra.imagen, s.extra.titulo)}</div>` : "");
       if (s.tipo === "estudios") cuerpo += `<div class="caso-cards">${s.estudios.map(e => `<div class="caso-card"><h3>${e[0]}</h3><h4>${esc(e[1])}</h4><small>${esc(e[2])}</small><p>${esc(e[3])}</p></div>`).join("")}</div>` +
         (s.destaque
@@ -417,12 +435,20 @@
       if (s.tipo === "aprendizajes") cuerpo += `<div class="caso-cards apr">${s.tarjetas.map((t, k) => `<div class="caso-card ${k === 2 ? "osc" : ""}"><h3>${esc(t[0])}</h3><p>${esc(t[1])}</p></div>`).join("")}</div>`;
       return `<section class="${cls}" ${estilo}>${cabeza}${cuerpo}</section>`;
     };
+    // Tiempo de lectura: palabras de todo el caso a ~200 por minuto
+    const palabras = o => typeof o === "string" ? (/\.(jpe?g|png|svg)$/.test(o) ? 0 : o.split(/\s+/).length)
+      : Array.isArray(o) ? o.reduce((a, x) => a + palabras(x), 0) : o && typeof o === "object" ? Object.values(o).reduce((a, x) => a + palabras(x), 0) : 0;
+    const minutos = Math.max(1, Math.round(palabras(c) / 200));
+    const r30 = c.resumen30;
+    const indice = (r30 ? [["sec-r30", u.en30.replace(/^EN |^IN /, "")]] : []).concat(c.secciones.map((s, k) => [`sec-${k}`, corto(s)]));
     vistaCaso.style.setProperty("--acento", p.color); vistaCaso.style.setProperty("--oscuro", p.oscuro);
     vistaCaso.innerHTML = `
-      <nav class="caso-nav"><button data-accion="lab">◂ ${volverTxt}</button><span class="num">${u.capsula} ${lista.indexOf(p) + 1} / ${lista.length} · ${p.nombre}</span>${fin ? `<button class="sig fin" data-accion="fin">${u.finalizar} ▸</button>` : `<button class="sig" data-accion="sig">${u.siguiente}: ${sig.nombre} ▸</button>`}</nav>
+      <div class="caso-cabecera"><nav class="caso-nav"><button data-accion="lab">◂ ${volverTxt}</button><span class="num">${u.capsula} ${lista.indexOf(p) + 1} / ${lista.length} · ${p.nombre}</span>${fin ? `<button class="sig fin" data-accion="fin">${u.finalizar} ▸</button>` : `<button class="sig" data-accion="sig">${u.siguiente}: ${sig.nombre} ▸</button>`}</nav>
+        <nav class="caso-indice" aria-label="${u.indice}"><span class="lectura">⏱ ${minutos} ${u.lectura}</span><div class="ind-items">${indice.map(([id, t]) => `<a href="#${id}" data-ir="${id}">${esc(t)}</a>`).join("")}</div><span class="progreso" aria-hidden="true"><i></i></span></nav></div>
       <header class="caso-hero" style="background:${p.oscuro}"><div><span class="caso-etq" style="background:${p.color}">${c.etiqueta}</span><h1>${c.titulo}</h1>
         <p class="caso-sub" style="color:${p.chip}">${esc(c.subtitulo)}</p><p class="res">${esc(c.resumen)}</p>
         <div class="caso-meta">${c.meta.map(m => `<div><small>${m[0]}</small><b>${esc(m[1])}</b></div>`).join("")}</div></div>${img(c.portada, c.titulo)}</header>
+      ${r30 ? `<section class="caso-r30" id="sec-r30"><div class="etq">${u.en30}</div><div class="r30-items">${r30.items.map(([t, x], k) => `<div class="r30-item"><span class="r30-n">${k + 1}</span><h3>${esc(t)}</h3><p>${esc(x)}</p></div>`).join("")}</div><p class="r30-rol"><b>${u.miRol}</b> ${esc(r30.rol)}</p></section>` : ""}
       <div class="caso-stats" style="background:${p.color}">${c.stats.map(s => `<div><strong>${esc(s[0])}</strong><span>${esc(s[1])}</span></div>`).join("")}</div>
       ${c.secciones.map(sec).join("")}
       <footer class="caso-fin"><h2>${fin ? u.vistoTodo : u.seguimos}</h2><button class="bot" data-accion="lab">◂ ${volverTxt}</button><button class="bot sig" style="background:${sig.color}" data-accion="sig">${u.siguienteCapsula}: ${sig.nombre} ▸</button>${fin ? `<button class="bot fin" data-accion="fin">${u.finalizar} ▸</button>` : ""}
@@ -434,9 +460,38 @@
       if (a === "fin") finalizar();
       if (a === "correo") location.href = "mailto:" + D.contacto.correo.join("@");
     }));
+    // Índice: salta a la sección sin tocar la URL
+    vistaCaso.querySelectorAll("[data-ir]").forEach(a => a.addEventListener("click", e => {
+      e.preventDefault(); document.getElementById(a.dataset.ir).scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+    // Punto en la imagen ↔ nota en la lista: al pasar o tocar uno, se resaltan ambos
+    vistaCaso.querySelectorAll(".caso-fig.anotada").forEach(f => {
+      const marcar = n => f.querySelectorAll("[data-n]").forEach(x => x.classList.toggle("activa", x.dataset.n === n));
+      f.querySelectorAll("[data-n]").forEach(x => {
+        x.addEventListener("mouseenter", () => marcar(x.dataset.n)); x.addEventListener("focus", () => marcar(x.dataset.n));
+        x.addEventListener("click", () => marcar(x.dataset.n));
+      });
+      f.addEventListener("mouseleave", () => marcar(null));
+    });
     consola.hidden = true; vistaClasico.hidden = true; vistaCaso.hidden = false; if (!redibujar) window.scrollTo(0, 0);
-    document.title = `${c.titulo} · Juan Manuel Córdoba`; pintarIdioma();
+    document.title = `${c.titulo} · Juan Manuel Córdoba`; pintarIdioma(); seguirIndice();
   }
+  // Resalta en el índice la sección que se está leyendo y llena la barra de progreso
+  let indiceActivo;
+  function seguirIndice() {
+    const enlaces = [...vistaCaso.querySelectorAll("[data-ir]")], barra = vistaCaso.querySelector(".progreso i");
+    if (!barra) return;
+    const alto = vistaCaso.querySelector(".caso-cabecera").offsetHeight + 24;
+    let actual = null;
+    for (const a of enlaces) { const s = document.getElementById(a.dataset.ir); if (s && s.getBoundingClientRect().top <= alto + 40) actual = a; }
+    if (actual !== indiceActivo) { // en pantallas angostas el índice se desliza para mostrar la sección activa
+      indiceActivo = actual; enlaces.forEach(a => a.classList.toggle("activa", a === actual));
+      if (actual) actual.parentElement.scrollTo({ left: actual.offsetLeft - 40, behavior: "smooth" });
+    }
+    const total = document.documentElement.scrollHeight - innerHeight;
+    barra.style.width = (total > 0 ? Math.min(100, scrollY / total * 100) : 0) + "%";
+  }
+  addEventListener("scroll", () => { if (!vistaCaso.hidden) seguirIndice(); }, { passive: true });
   function finalizar() {
     vistaCaso.hidden = true; vistaClasico.hidden = true; consola.hidden = false;
     document.title = D.ui.titulo; ajustar(); cierre(true);

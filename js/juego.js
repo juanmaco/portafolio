@@ -406,9 +406,11 @@
     // Imagen con contexto: qué se ve, por qué importa, etiqueta ANTES/DESPUÉS y puntos numerados con las decisiones de diseño
     const figura = (f, alt) => {
       if (typeof f === "string") return img(f, alt);
-      const notas = f.notas || [], antes = /^(ANTES|BEFORE)$/.test(f.etiqueta || "");
-      return `<figure class="caso-fig ${notas.length ? "anotada" : ""}"><div class="fig-lienzo">${img(f.src, f.que || alt)}` +
-        (f.etiqueta ? `<span class="fig-badge ${antes ? "antes" : "despues"}">${esc(f.etiqueta)}</span>` : "") +
+      const notas = f.notas || [], e = f.etiqueta || "";
+      const badge = /^(ANTES|BEFORE)$/.test(e) ? "antes" : /^(DESPUÉS|AFTER)$/.test(e) ? "despues" : "neutro";
+      // «ancho»: pantallas de teléfono sueltas, que a todo el ancho quedarían demasiado altas
+      return `<figure class="caso-fig ${notas.length ? "anotada" : ""}"><div class="fig-lienzo ${f.ancho ? "angosta" : ""}" ${f.ancho ? `style="max-width:${f.ancho}px"` : ""}>${img(f.src, f.que || alt)}` +
+        (e ? `<span class="fig-badge ${badge}">${esc(e)}</span>` : "") +
         notas.map((n, k) => `<button class="punto" style="left:${n.x}%;top:${n.y}%" data-n="${k}" aria-label="${u.nota} ${k + 1}: ${esc(n.texto)}">${k + 1}</button>`).join("") +
         `</div><figcaption>${f.que ? `<p class="fig-que">${esc(f.que)}</p>` : ""}${f.porque ? `<p class="fig-porque"><b>${u.porQue}</b> ${esc(f.porque)}</p>` : ""}` +
         (notas.length ? `<h3>${u.notasTitulo}</h3><ol class="fig-notas">${notas.map((n, k) => `<li data-n="${k}"><span>${k + 1}</span>${esc(n.texto)}</li>`).join("")}</ol>` : "") + `</figcaption></figure>`;

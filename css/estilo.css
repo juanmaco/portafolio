@@ -358,6 +358,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .caso-galeria { grid-template-columns: repeat(min(var(--cols, 2), 2), minmax(0, 1fr)); }
   .caso-galeria:not(.telefonos) { grid-template-columns: 1fr; }
   .caso-nav .num { display: none; }
+  /* Botones del final apilados y del mismo ancho */
+  .caso-fin .bot { display: block; width: 100%; max-width: 360px; margin: 10px auto; padding: 14px 12px; font-size: 16px; }
 }
 
 /* ---------- Modo clásico ---------- */

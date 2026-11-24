@@ -66,20 +66,6 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .ayuda { color: #DCE6FF; }
 }
 
-/* Teléfono horizontal: emulador, sin carcasa y aprovechando todo el alto */
-@media (orientation: landscape) and (max-height: 520px) {
-  .consola { grid-template-rows: auto auto; grid-template-areas: "cruz top top" "cruz bisel botones"; gap: 4px 18px; padding: 6px max(16px, env(safe-area-inset-left)) 6px max(16px, env(safe-area-inset-right)); position: relative; }
-  .barra-superior { padding: 0 4px; }
-  .marca, .ayuda { display: none; }
-  .marco { width: min(calc((100dvh - 64px) * 1.5), calc(100vw - 372px)); }
-  .bisel { padding: 5px 5px 3px; border-radius: 12px; }
-  .bisel-pie { display: none; }
-  .cruceta { grid-template: repeat(3, 44px) / repeat(3, 44px); padding: 8px; }
-  .botones { width: 140px; height: 140px; }
-  .btn { width: 64px; height: 64px; font-size: 24px; }
-  .pildoras { position: absolute; bottom: 8px; left: 0; right: 0; justify-content: space-between; padding: 0 24px; pointer-events: none; }
-  .pildora { pointer-events: auto; min-width: 76px; padding: 6px 10px; font-size: 11px; }
-}
 
 /* Teléfono en vertical: pedir girar */
 .giro { display: none; }
@@ -459,23 +445,54 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .pista-lab { position: absolute; left: 50%; top: 362px; transform: translateX(-50%); padding: 8px 18px 9px; background: #1A1420E6; border: 3px solid var(--papel); border-radius: 8px; text-align: center; color: var(--papel); white-space: nowrap; pointer-events: none; }
 .pista-lab b { display: block; font-size: 18px; }
 .pista-lab small { display: block; margin-top: 4px; font-size: 12px; color: #BFE6FA; }
-@media (orientation: landscape) and (max-height: 520px) {
-  .etiqueta-btn { width: 64px; font-size: 10px; }
-  .eti-a { top: 77px; }
-  .eti-b { top: 132px; }
-  .pill.accion { font-size: 12px; padding: 6px 10px; }
-}
 /* La barra superior y la ayuda ocupan todo el ancho sin ensanchar las columnas de la consola (si no, la pantalla se monta sobre los botones) */
 .barra-superior, .ayuda { width: 0; min-width: 100%; }
 .ayuda { line-height: 1.5; }
-/* Móvil horizontal: la barra solo mide lo que la pantalla, así que los botones van compactos y en una línea */
 .pill { white-space: nowrap; }
+/* Descripción de la opción elegida en el menú de inicio */
+.menu-desc { position: absolute; left: 50%; transform: translateX(-50%); padding: 6px 16px 7px; background: #1A1420E6; border: 3px solid var(--papel); border-radius: 8px; color: var(--papel); font-size: 16px; white-space: nowrap; pointer-events: none; }
+
+/* Teléfono horizontal: la pantalla ocupa todo el alto (se lee mejor) y los controles van a los costados.
+   Columna izquierda: sonido e idioma, cruceta y SELECT. Derecha: ver proyectos / página, A y B, y START. */
 @media (orientation: landscape) and (max-height: 520px) {
-  .grupo-mini { gap: 6px; }
+  .consola { height: 100dvh; min-height: 0; grid-template-columns: 140px auto 124px; grid-template-rows: auto 1fr auto;
+    grid-template-areas: "izq bisel der" "cruz bisel botones" "sel bisel start"; justify-content: space-evenly; align-items: center; gap: 6px 8px;
+    padding: 6px max(8px, env(safe-area-inset-right)) 6px max(8px, env(safe-area-inset-left)); }
+  .barra-superior, .pildoras { display: contents; }
+  .grupo-mini { grid-area: izq; flex-direction: column; gap: 6px; align-self: start; }
+  .grupo-mini.derecha { grid-area: der; }
+  .marca, .ayuda, .bisel-pie { display: none; }
+  .bisel { grid-row: 1 / -1; padding: 3px; border-width: 2px; border-radius: 8px; }
+  .marco { width: min(calc((100dvh - 22px) * 1.5), calc(100vw - 306px - env(safe-area-inset-left) - env(safe-area-inset-right))); }
+  .cruceta { justify-self: center; grid-template: repeat(3, 44px) / repeat(3, 44px); padding: 2px; }
+  .botones { justify-self: center; width: 124px; height: 130px; }
+  .btn { width: 56px; height: 56px; font-size: 22px; }
+  .btn-a { top: 4px; }
+  .btn-b { bottom: 16px; }
+  .etiqueta-btn { width: 56px; font-size: 10px; }
+  .eti-a { top: 64px; }
+  .eti-b { top: 116px; }
+  .pildora { justify-self: center; align-self: end; min-width: 96px; padding: 6px 10px; font-size: 11px; }
+  .pildora[data-tecla="select"] { grid-area: sel; }
+  .pildora[data-tecla="start"] { grid-area: start; }
   .pill, .pill.accion { font-size: 11px; padding: 5px 9px; gap: 5px; letter-spacing: .5px; }
+  .pill.accion { white-space: normal; text-align: center; justify-content: center; max-width: 124px; line-height: 1.2; }
   .pill .ico { font-size: 13px; }
   .pill.idioma { padding: 2px; }
   .pill.idioma .seg { padding: 3px 7px; }
 }
-/* Descripción de la opción elegida en el menú de inicio */
-.menu-desc { position: absolute; left: 50%; transform: translateX(-50%); padding: 6px 16px 7px; background: #1A1420E6; border: 3px solid var(--papel); border-radius: 8px; color: var(--papel); font-size: 16px; white-space: nowrap; pointer-events: none; }
+/* Teléfonos angostos (≈ 670–760 px de ancho): controles más compactos para no robarle ancho a la pantalla */
+@media (orientation: landscape) and (max-height: 520px) and (max-width: 760px) {
+  .consola { grid-template-columns: 108px auto 100px; gap: 6px 6px; }
+  .marco { width: min(calc((100dvh - 22px) * 1.5), calc(100vw - 236px - env(safe-area-inset-left) - env(safe-area-inset-right))); }
+  .cruceta { grid-template: repeat(3, 34px) / repeat(3, 34px); }
+  .botones { width: 100px; height: 112px; }
+  .btn { width: 48px; height: 48px; font-size: 19px; }
+  .btn-b { bottom: 14px; }
+  .etiqueta-btn { width: 48px; font-size: 9px; letter-spacing: 0; }
+  .eti-a { top: 55px; }
+  .eti-b { top: 100px; }
+  .pildora { min-width: 80px; }
+  .pill, .pill.accion { font-size: 10px; padding: 5px 7px; }
+  .pill.accion { max-width: 100px; }
+}

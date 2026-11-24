@@ -261,7 +261,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .caso-lista li::before { content: "▸"; position: absolute; left: 0; font-size: 11px; }
 .caso-galeria { display: grid; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 24px; align-items: center; }
 .caso-galeria.una { grid-template-columns: 1fr; }
-.caso-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; align-items: start; }
+.caso-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; align-items: stretch; }
 .caso-card h4 { margin: 0; font-size: 19px; line-height: 26px; color: var(--tinta); }
 .caso-card small { display: block; color: #6A6070; font-size: 15px; line-height: 22px; }
 .caso-card p { margin: 0; font-size: 16px; font-weight: 600; line-height: 24px; }
